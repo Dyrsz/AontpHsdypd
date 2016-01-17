@@ -1,0 +1,24 @@
+(Voy a hacerlo en castellano)
+
+DISEÑO
+
+El programa te deja un entorno muy sencillo para introducir los datos de contabilidad del libro de gastos.
+Vendría a ser una ventana pequeña. sin posibilidad de maximizarse.
+
+A cada elemento lo llamamos "gasto", con lo que habría una etiqueta arriba donde pondría:
+"Introducir gasto".
+Abajo pondría las columnas pertinentes: "Fecha, concepto, tipo IVA, base, IVA, total".
+Al rellenarse, cada una con su propio formato, habría un botón de "Enviar".
+
+La base de datos que se iría creando en el programa es algo que no se muestra. De todas formas, pondría una
+etiqueta que diría "Mostrar gastos" y continuación varios botones señalando la ordenación.
+(mostrar todos, mostrar por fecha, mostrar por capítulos), con obvia posibilidad de ampliarse.
+
+Pulsado uno de estos botones, se abrirá otra ventana mostrando los datos pertinentes. Aquí, si se pulsa
+sobre un elemento con el botón secundario, saldrá un pequeño menú con las opciones de editar y eliminar.
+Abajo del todo, con un botón de "exportar pdf", se completaría todo.
+
+PROGRAMACIÓN
+
+Tengo que crear un tipo de datos, supongo que "gasto", que será un vector formado por las columnas de
+las que se habla aquí, añadiendo una variable más para hacer de ID. Con esto, el resto debería ser fácil.
