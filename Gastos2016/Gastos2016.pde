@@ -1,5 +1,5 @@
 PFont font1;
-Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.60, 'a'); 
+Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.61, 'a'); 
 Gasto gasto2 = new Gasto(31,12,2021, "Gasóleo", 60, 'a'); 
 
 void setup() {
@@ -14,6 +14,16 @@ void draw() {
   fill(250);
   text(gasto1.ID,10,100);
   text(gasto2.ID,10,130);
+  
+  // Prueba;
+  String prueba;
+  float flo = 45.51;
+  int i;
+  i = int(flo);
+  prueba = str(str(flo).length());
+  text(prueba, 10, 160);
+  //
+  
   noLoop();
 }
 
@@ -58,16 +68,17 @@ class Gasto {
         //if (fM == 2 && fY%4 == 0) if (fD < 1 || fD > 29) Error;
         //if (fM == 2 && fY%4 != 0) if (fD < 1 || fD > 28) Error;
     String ID3 = str(char(fD+47));
-      // Concepto, sConcepto y Base:
+      // Concepto, sConcepto:
     String ID4 = str(conc.charAt(0)) + str(conc.charAt(conc.length()-1));
     String ID5 = str(sConc);
       // Base:
-      String ID6s = str(str(base).length());
+      String ID6s1 = str(base);
+      String ID6s = str(ID6s1.length());
         //if(ID6s > 10) Error;
       int ID6i = int(base);
-    String ID6 = ID6s + str(str(ID6i).charAt(0));  //  
+    String ID6 = ID6s + str(str(ID6i%10).charAt(0));
       // Reserva. De momento no lo toco.
     String ID7 = "0";
-    ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
+    ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;    //  '_' Para separar IDs en una misma fila. (No es necesario)
   }
 }
