@@ -3,26 +3,17 @@ Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.61, 'a');
 Gasto gasto2 = new Gasto(31,12,2021, "Gasóleo", 60, 'a'); 
 
 void setup() {
-  size(200,200);
+  size(600,250);
   font1 = createFont("Arial",16,true);
   
 }
 
 void draw() {
   background(0);
-  textFont(font1,16);
+  textFont(font1,21);
   fill(250);
-  text(gasto1.ID,10,100);
-  text(gasto2.ID,10,130);
+  text("Asistente de Libro de gastos",155,30);
   
-  // Prueba;
-  String prueba;
-  float flo = 45.51;
-  int i;
-  i = int(flo);
-  prueba = str(str(flo).length());
-  text(prueba, 10, 160);
-  //
   
   noLoop();
 }
@@ -46,7 +37,8 @@ class Gasto {
     fM = tfM;
     fY = tfY;
     conc = tconc;
-    base = tbase;
+    int tbaseI = round(tbase*100);      // La base tiene dos decimales.
+    base = tbaseI/100.0;
     sConc = tsConc;
     // Construyo la ID:
       // Year:  
@@ -72,10 +64,10 @@ class Gasto {
     String ID4 = str(conc.charAt(0)) + str(conc.charAt(conc.length()-1));
     String ID5 = str(sConc);
       // Base:
-      String ID6s1 = str(base);
-      String ID6s = str(ID6s1.length());
+    String ID6s1 = str(base);
+    String ID6s = str(ID6s1.length());
         //if(ID6s > 10) Error;
-      int ID6i = int(base);
+    int ID6i = int(base);
     String ID6 = ID6s + str(str(ID6i%10).charAt(0));
       // Reserva. De momento no lo toco.
     String ID7 = "0";
