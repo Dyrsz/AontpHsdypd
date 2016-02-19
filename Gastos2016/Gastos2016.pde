@@ -39,7 +39,6 @@ void draw() {
       text("No disponible", 250, 200);
     }
   } else if (menInd == 2) {
-    fill(0);
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
