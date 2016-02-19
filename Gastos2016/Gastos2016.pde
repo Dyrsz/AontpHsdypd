@@ -2,6 +2,7 @@ PFont font1;
 Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.61, 'a'); 
 Gasto gasto2 = new Gasto(31,12,2021, "Gasóleo", 60, 'a'); 
 boolean[] menE = new boolean[4];  // El último elemento no lo manejo aún.
+byte menInd;
 
 void setup() {
   size(600,250);
@@ -12,32 +13,62 @@ void setup() {
 void draw() {
   background(0);
   fill(0);
-
-  stroke(110);
-  fill(150, 0, 150, 70);
-  for (byte i = 0; i < 3; i++) {
-    if (42 <= mouseX && mouseX <= 250 && (58+40*i) <= mouseY && mouseY <= (90+40*i)) {
-      rect(42, (58+40*i), 208, 32);
-      menE[i] = true;
-    } else {
-      menE[i] = false;
-    }
-  }
-  noStroke();
-  fill(250);
-  textFont(font1,21);
-  text("Asistente de Libro de gastos",155,30);
-  textFont(font1,18);
-  text("Ver lista de gastos", 50, 80);
-  text("Añadir gasto", 50, 120);
-  text("Producir para imprimir", 50, 160);
-  text("Nuevo libro de gastos", 50, 200);
-  if (42 <= mouseX && mouseX <= 250 && (58+40*3) <= mouseY && mouseY <= (90+40*3)) {
+  if (menInd == 0) {
+    stroke(110);
     fill(150, 0, 150, 70);
+    for (byte i = 0; i < 3; i++) {
+      if (42 <= mouseX && mouseX <= 250 && (58+40*i) <= mouseY && mouseY <= (90+40*i)) {
+        rect(42, (58+40*i), 208, 32);
+        menE[i] = true;
+      } else {
+        menE[i] = false;
+      }
+    }
+    noStroke();
+    fill(250);
     textFont(font1,21);
-    text("No disponible", 250, 200);
+    text("Asistente de Libro de gastos",155,30);
+    textFont(font1,18);
+    text("Ver lista de gastos", 50, 80);
+    text("Añadir gasto", 50, 120);
+    text("Producir para imprimir", 50, 160);
+    text("Nuevo libro de gastos", 50, 200);
+    if (42 <= mouseX && mouseX <= 250 && (58+40*3) <= mouseY && mouseY <= (90+40*3)) {
+      fill(150, 0, 150, 70);
+      textFont(font1,21);
+      text("No disponible", 250, 200);
+    }
+  } else if (menInd == 2) {
+    fill(0);
+    stroke(110);
+    rect(35, 45, 530, 140);
+    rect(345, 202, 100, 30);
+    rect(465, 202, 100, 30);
+    line(40, 115, 560, 115);
+    noStroke();
+    fill(250);
+    textFont(font1,21);
+    text("Añadir gasto nuevo",105,30);
+    textFont(font1,17);
+    text("Concepto:", 45, 70);
+    text("Clase:", 445, 70);
+    text("Fecha:", 345, 100);
+    text("Base:", 45, 100);
+    text("Tipo IVA:", 45, 140);
+    text("IVA:", 190, 140);
+    text("Total:", 345, 140);
+    text("Capítulo:", 45, 170);
+    
+    text("Volver", 370, 223);
+    text("Introducir", 480, 223);
+    
   }
-  
+}
+
+void mouseClicked() { 
+  if (menE[1]) {
+    menInd = 2; 
+  }
 }
 
 class Gasto {
