@@ -1,7 +1,7 @@
 PFont font1;
 Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.61, 'a'); 
 Gasto gasto2 = new Gasto(31,12,2021, "Gasóleo", 60, 'a'); 
-boolean[] menE = new boolean[4];  // El último elemento no lo manejo aún.
+boolean[] menE = new boolean[8];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[8].
 byte menInd;
 
 void setup() {
@@ -57,15 +57,58 @@ void draw() {
     text("IVA:", 190, 140);
     text("Total:", 345, 140);
     text("Capítulo:", 45, 170);
-    
     text("Volver", 370, 223);
     text("Introducir", 480, 223);
-    
+    stroke(110);
+    fill(150, 0, 150, 70);
+    if (130 <= mouseX && mouseX <= 430 && 51 <= mouseY && mouseY <= 78) {
+      rect(130, 51, 300, 27);
+      menE[0] = true;
+    } else {
+      menE[0] = false;
+    } if (500 <= mouseX && mouseX <= 550 && 51 <= mouseY && mouseY <= 78) {
+      rect(500, 51, 50, 27);
+      menE[1] = true;
+    } else {
+      menE[1] = false;
+    } if (95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109) {
+      rect(95, 82, 235, 27);
+      menE[2] = true;
+    } else {
+      menE[2] = false;
+    } if (404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109) {
+      rect(404, 82, 146, 27);
+      menE[3] = true;
+    } else {
+      menE[3] = false;
+    } if (345 <= mouseX && mouseX <= 445 && 202 <= mouseY && mouseY <= 232) {
+      rect(345, 202, 100, 30);
+      menE[6] = true;
+    } else {
+      menE[6] = false;
+    } if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
+      rect(465, 202, 100, 30);
+      menE[7] = true;
+    } else {
+      menE[7] = false;
+    }    
+    fill(100, 80, 100, 70);
+    if (118 <= mouseX && mouseX <= 178 && 120 <= mouseY && mouseY <= 147) {
+      rect(118, 120, 60, 27);
+      menE[4] = true;
+    } else {
+      menE[4] = false;
+    } if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
+      rect(118, 152, 432, 27);
+      menE[5] = true;
+    } else {
+      menE[5] = false;
+    }
   }
 }
 
 void mouseClicked() { 
-  if (menE[1]) {
+  if (menInd == 0 && menE[1]) {
     menInd = 2; 
   }
 }
