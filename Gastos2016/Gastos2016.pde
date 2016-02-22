@@ -108,8 +108,35 @@ void draw() {
 }
 
 void mouseClicked() { 
-  if (menInd == 0 && menE[1]) {
-    menInd = 2; 
+  if (menInd == 0) {
+    if (menE[0]) {
+      // Ver Gastos.
+    } else if (menE[1]) {
+      menInd = 2; 
+    } else if (menE[2]) {
+      // Producir pdf (Menú para elegir).
+    } else if (menE[3]) {
+      // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
+    }
+  } else if (menInd == 2) {
+    if (menE[0]) {
+      // Concepto. Abrir Menú.
+    } else if (menE[1]) {
+      // Clase del concepto. Otro menú, también. 
+    } else if (menE[2]) {
+      // Base. Editor.
+    } else if (menE[3]) {
+      // Fecha. Menú.
+    } else if (menE[4]) {
+      // Tipo IVA. Menú.
+    } else if (menE[5]) {
+      // Capítulo. Menú.
+    } else if (menE[6]) {
+      menInd = 0;
+      menE[6] = false;
+    } else if (menE[7]) {
+      // Introducir: Verifica los datos de todos los apartados y añade el gasto.
+    }
   }
 }
 
