@@ -1,13 +1,17 @@
 PFont font1;
-Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 34.61, 'a'); 
-Gasto gasto2 = new Gasto(31,12,2021, "Gasóleo", 60, 'a'); 
+Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 40, 'A'); 
+Gasto gasto2 = new Gasto(1,1,2016, "Gasóleo", 33.06, 'A'); 
 boolean[] menE = new boolean[8];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[8].
 byte menInd;
+String[] DatosBdD;
+String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
 
 void setup() {
   size(600,250);
   font1 = createFont("Arial",16,true);
-  
+  DatosBdD = loadStrings("BdD.txt");
+  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) 
+    GastosBdD[i] = split(DatosBdD[i], '_');
 }
 
 void draw() {
@@ -28,6 +32,7 @@ void draw() {
     fill(250);
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
+    text(GastosBdD[0][3], 150,50);  // Aquí para mirar IDs.
     textFont(font1,18);
     text("Ver lista de gastos", 50, 80);
     text("Añadir gasto", 50, 120);
