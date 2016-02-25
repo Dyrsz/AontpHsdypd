@@ -1,7 +1,7 @@
 PFont font1;
 Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 40, 'A'); 
 Gasto gasto2 = new Gasto(1,1,2016, "Gasóleo", 33.06, 'A'); 
-boolean[] menE = new boolean[8];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[8].
+boolean[] menE = new boolean[9];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
 byte menInd;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
@@ -9,9 +9,8 @@ String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche,
 void setup() {
   size(600,250);
   font1 = createFont("Arial",16,true);
-  DatosBdD = loadStrings("BdD.txt");
-  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) 
-    GastosBdD[i] = split(DatosBdD[i], '_');
+  DatosBdD = loadStrings("BdD.dat");
+  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
 }
 
 void draw() {
@@ -32,7 +31,7 @@ void draw() {
     fill(250);
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
-    text(GastosBdD[0][3], 150,50);  // Aquí para mirar IDs.
+    //text(GastosBdD[0][3], 150,50);  // Aquí para mirar IDs.
     textFont(font1,18);
     text("Ver lista de gastos", 50, 80);
     text("Añadir gasto", 50, 120);
@@ -43,7 +42,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2) {
+  } else if (menInd == 2 || menInd == 20) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -64,50 +63,82 @@ void draw() {
     text("Capítulo:", 45, 170);
     text("Volver", 370, 223);
     text("Introducir", 480, 223);
-    stroke(110);
-    fill(150, 0, 150, 70);
-    if (130 <= mouseX && mouseX <= 430 && 51 <= mouseY && mouseY <= 78) {
-      rect(130, 51, 300, 27);
-      menE[0] = true;
-    } else {
-      menE[0] = false;
-    } if (500 <= mouseX && mouseX <= 550 && 51 <= mouseY && mouseY <= 78) {
-      rect(500, 51, 50, 27);
-      menE[1] = true;
-    } else {
-      menE[1] = false;
-    } if (95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109) {
-      rect(95, 82, 235, 27);
-      menE[2] = true;
-    } else {
-      menE[2] = false;
-    } if (404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109) {
-      rect(404, 82, 146, 27);
-      menE[3] = true;
-    } else {
-      menE[3] = false;
-    } if (345 <= mouseX && mouseX <= 445 && 202 <= mouseY && mouseY <= 232) {
-      rect(345, 202, 100, 30);
-      menE[6] = true;
-    } else {
-      menE[6] = false;
-    } if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
+    if (menInd == 2) {
+      stroke(110);
+      fill(150, 0, 150, 70);
+      if (130 <= mouseX && mouseX <= 430 && 51 <= mouseY && mouseY <= 78) {
+        rect(130, 51, 300, 27);
+        menE[0] = true;
+      } else {
+        menE[0] = false;
+      } if (500 <= mouseX && mouseX <= 550 && 51 <= mouseY && mouseY <= 78) {
+        rect(500, 51, 50, 27);
+        menE[1] = true;
+      } else {
+        menE[1] = false;
+      } if (95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109) {
+        rect(95, 82, 235, 27);
+        menE[2] = true;
+      } else {
+        menE[2] = false;
+      } if (404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109) {
+        rect(404, 82, 146, 27);
+        menE[3] = true;
+      } else {
+        menE[3] = false;
+      } if (395 <= mouseX && mouseX <= 550 && 120 <= mouseY && mouseY <= 147) {
+        rect(395, 120, 155, 27);
+        menE[5] = true;
+      } else {
+        menE[5] = false;
+      } if (345 <= mouseX && mouseX <= 445 && 202 <= mouseY && mouseY <= 232) {
+        rect(345, 202, 100, 30);
+        menE[7] = true;
+      } else {
+        menE[7] = false;
+      } if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
+        rect(465, 202, 100, 30);
+        menE[8] = true;
+      } else {
+        menE[8] = false;
+      }    
+      fill(100, 80, 100, 70);
+      if (118 <= mouseX && mouseX <= 178 && 120 <= mouseY && mouseY <= 147) {
+        rect(118, 120, 60, 27);
+        menE[4] = true;
+      } else {
+        menE[4] = false;
+      } if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
+        rect(118, 152, 432, 27);
+        menE[6] = true;
+      } else {
+        menE[6] = false;
+      }
+    } else if (menInd == 20) {
+      stroke(110);
+      fill(0);
+      rect(135, 40, 440, 200);
+      line(140, 196, 565, 196);
       rect(465, 202, 100, 30);
-      menE[7] = true;
-    } else {
-      menE[7] = false;
-    }    
-    fill(100, 80, 100, 70);
-    if (118 <= mouseX && mouseX <= 178 && 120 <= mouseY && mouseY <= 147) {
-      rect(118, 120, 60, 27);
-      menE[4] = true;
-    } else {
-      menE[4] = false;
-    } if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
-      rect(118, 152, 432, 27);
-      menE[5] = true;
-    } else {
-      menE[5] = false;
+      rect(144, 202, 270, 30);
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Volver", 487, 225);
+      text("Añadir nuevo concepto", 166, 225);
+      stroke(110);
+      fill(150, 0, 150, 70);
+      if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
+        rect(465, 202, 100, 30);
+        menE[0] = true;
+      } else {
+        menE[0] = false;
+      } if (144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232) {
+        rect(144, 202, 270, 30);
+        menE[1] = true;
+      } else {
+        menE[1] = false;
+      }   
     }
   }
 }
@@ -124,23 +155,34 @@ void mouseClicked() {
       // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
     }
   } else if (menInd == 2) {
-    if (menE[0]) {
-      // Concepto. Abrir Menú.
+    if (menE[0]) { // Concepto. Abrir Menú.
+      menInd = 20;
     } else if (menE[1]) {
       // Clase del concepto. Otro menú, también. 
     } else if (menE[2]) {
-      // Base. Editor.
+      // Base. Editor. Afecta a Total.
     } else if (menE[3]) {
       // Fecha. Menú.
     } else if (menE[4]) {
       // Tipo IVA. Menú.
     } else if (menE[5]) {
-      // Capítulo. Menú.
+      // Total. Editor. Afecta a Base.
     } else if (menE[6]) {
+      // Capítulo. Menú.
+    } else if (menE[7]) { // Volver al inicio.
       menInd = 0;
       menE[6] = false;
-    } else if (menE[7]) {
+    } else if (menE[8]) {
       // Introducir: Verifica los datos de todos los apartados y añade el gasto.
+    }
+  } else if (menInd == 20) {
+    if (menE[0]) { // Volver al menú de añadir gasto.
+      menInd = 2;
+      menE[0] = false;
+    } else if (menE[1]) {
+      // Nuevo concepto.
+    } else if (menE[2]) {
+      // Concepto número 1.
     }
   }
 }
