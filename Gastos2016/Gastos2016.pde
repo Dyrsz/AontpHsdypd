@@ -5,12 +5,57 @@ boolean[] menE = new boolean[9];  // Para menE == 0, menE[4] sin utilizar el úl
 byte menInd;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
+int numGastos = 0;
+int numConcDistintos = 0;
+String[] concBdD = new String[2000];
+int[] concFBdD = new int[2000];
 
 void setup() {
   size(600,250);
   font1 = createFont("Arial",16,true);
+  carga();
+  ConceptosPorFrecuencia();
+}
+
+void carga() {
   DatosBdD = loadStrings("BdD.dat");
   if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
+  numGastos = DatosBdD.length;
+}
+
+void ConceptosPorFrecuencia() {
+  String[] conc = new String[numGastos];
+  int[] concF = new int[numGastos];
+  int n = 0;
+  for (int i = 0; i < numGastos; i++) {
+    if (n == 0) {
+      conc[0] = GastosBdD[0][3];
+      concF[0] = 1;
+      n++;
+      for (int j = 1; j < numGastos; j++) if (GastosBdD[0][3].equals(GastosBdD[j][3])) concF[0]++;
+    } else {
+      int m = 0;
+      for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][3])) m++;
+      if (m == 0) {  // Si es un concepto que aparece por primera vez:
+        conc[n] = GastosBdD[i][3];
+        concF[n] = 1;
+        if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][3].equals(GastosBdD[j][3])) concF[n]++;
+        n++;
+      }
+    }
+  }
+  boolean b = true;
+  n = 0;
+  while (b) {
+    if (concF[n] == 0) b = false;
+    n++;
+  }
+  numConcDistintos = n;
+  // Aquí debería poner un algoritmo para ordenar los gastos en el vector de salida según su frecuencia.
+  for (int i = 0; i < n; i++) {
+    concBdD[i] = conc[i];
+    concFBdD[i] = concF[i];
+  }
 }
 
 void draw() {
@@ -32,6 +77,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(GastosBdD[0][3], 150,50);  // Aquí para mirar IDs.
+    //text(numConcDistintos + "; " + concBdD[2] + "; " + concFBdD[2], 150,50);
     textFont(font1,18);
     text("Ver lista de gastos", 50, 80);
     text("Añadir gasto", 50, 120);
