@@ -51,6 +51,20 @@ void ConceptosPorFrecuencia() {
     n++;
   }
   numConcDistintos = n;
+  // Ordeno;
+  int[] permut = new int[n];
+  for (int i = 0; i < n; i++) {
+    String[] concInv = new String[n-i];
+    int[] concFInv= new int[n-i];
+    for (int m = 0; m < n-i; m++) {
+      concInv[m] = conc[i];
+      confFInv[m] = concF[i];
+      
+      if ()
+    }
+    
+  }
+  
   // Aquí debería poner un algoritmo para ordenar los gastos en el vector de salida según su frecuencia.
   for (int i = 0; i < n; i++) {
     concBdD[i] = conc[i];
