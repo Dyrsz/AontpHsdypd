@@ -17,61 +17,6 @@ void setup() {
   ConceptosPorFrecuencia();
 }
 
-void carga() {
-  DatosBdD = loadStrings("BdD.dat");
-  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
-  numGastos = DatosBdD.length;
-}
-
-void ConceptosPorFrecuencia() {
-  String[] conc = new String[numGastos];
-  int[] concF = new int[numGastos];
-  int n = 0;
-  for (int i = 0; i < numGastos; i++) {
-    if (n == 0) {
-      conc[0] = GastosBdD[0][3];
-      concF[0] = 1;
-      n++;
-      for (int j = 1; j < numGastos; j++) if (GastosBdD[0][3].equals(GastosBdD[j][3])) concF[0]++;
-    } else {
-      int m = 0;
-      for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][3])) m++;
-      if (m == 0) {  // Si es un concepto que aparece por primera vez:
-        conc[n] = GastosBdD[i][3];
-        concF[n] = 1;
-        if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][3].equals(GastosBdD[j][3])) concF[n]++;
-        n++;
-      }
-    }
-  }
-  boolean b = true;
-  n = 0;
-  while (b) {
-    if (concF[n] == 0) b = false;
-    n++;
-  }
-  numConcDistintos = n;
-  // Ordeno;
-  int[] permut = new int[n];
-  for (int i = 0; i < n; i++) {
-    String[] concInv = new String[n-i];
-    int[] concFInv= new int[n-i];
-    for (int m = 0; m < n-i; m++) {
-      concInv[m] = conc[i];
-      confFInv[m] = concF[i];
-      
-      if ()
-    }
-    
-  }
-  
-  // Aquí debería poner un algoritmo para ordenar los gastos en el vector de salida según su frecuencia.
-  for (int i = 0; i < n; i++) {
-    concBdD[i] = conc[i];
-    concFBdD[i] = concF[i];
-  }
-}
-
 void draw() {
   background(0);
   fill(0);
@@ -90,8 +35,12 @@ void draw() {
     fill(250);
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
-    //text(GastosBdD[0][3], 150,50);  // Aquí para mirar IDs.
-    //text(numConcDistintos + "; " + concBdD[2] + "; " + concFBdD[2], 150,50);
+    //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
+    /*  Aquí para mirar el vector de los conceptos ordenados.
+    for (int n = 0; n < numConcDistintos; n++) {
+      text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
+    }
+    */
     textFont(font1,18);
     text("Ver lista de gastos", 50, 80);
     text("Añadir gasto", 50, 120);
@@ -181,6 +130,10 @@ void draw() {
       line(140, 196, 565, 196);
       rect(465, 202, 100, 30);
       rect(144, 202, 270, 30);
+      for (int n = 0; n < numConcDistintos/2; n++) {  // Aquí es por donde tengo que seguir.
+        rect(150, 60+38*n, 200, 30);
+        rect(150+210, 60+38*n, 200, 30);
+      }
       noStroke();
       fill(250);
       textFont(font1,21);
@@ -216,6 +169,8 @@ void mouseClicked() {
     }
   } else if (menInd == 2) {
     if (menE[0]) { // Concepto. Abrir Menú.
+      carga();
+      ConceptosPorFrecuencia();
       menInd = 20;
     } else if (menE[1]) {
       // Clase del concepto. Otro menú, también. 
@@ -240,7 +195,7 @@ void mouseClicked() {
       menInd = 2;
       menE[0] = false;
     } else if (menE[1]) {
-      // Nuevo concepto.
+      // Nuevo concepto. Mandar a editor de texto.
     } else if (menE[2]) {
       // Concepto número 1.
     }
@@ -301,5 +256,60 @@ class Gasto {
       // Reserva. De momento no lo toco.
     String ID7 = "0";
     ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;    //  '_' Para separar IDs en una misma fila. (No es necesario)
+  }
+}
+
+void carga() {
+  DatosBdD = loadStrings("BdD.dat");
+  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
+  numGastos = DatosBdD.length;
+}
+
+void ConceptosPorFrecuencia() {
+  String[] conc = new String[numGastos];
+  int[] concF = new int[numGastos];
+  int n = 0;
+  for (int i = 0; i < numGastos; i++) {
+    if (n == 0) {
+      conc[0] = GastosBdD[0][3];
+      concF[0] = 1;
+      n++;
+      for (int j = 1; j < numGastos; j++) if (GastosBdD[0][3].equals(GastosBdD[j][3])) concF[0]++;
+    } else {
+      int m = 0;
+      for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][3])) m++;
+      if (m == 0) {  // Si es un concepto que aparece por primera vez:
+        conc[n] = GastosBdD[i][3];
+        concF[n] = 1;
+        if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][3].equals(GastosBdD[j][3])) concF[n]++;
+        n++;
+      }
+    }
+  }
+  boolean b = true;
+  n = 0;
+  while (b) {
+    if (concF[n] == 0) b = false;
+    n++;
+  }
+  n--;
+  numConcDistintos = n;
+  int[] permut = new int[n];    // Ordeno;
+  for (int i = 0; i < n; i++) {
+    int[] concFInv= new int[n-i];
+    for (int m = 0; m < n-i; m++) concFInv[m] = concF[m];
+    concFBdD[i] = max(concFInv);
+    for (int m = 0; m < n-i; m++) if (concFInv[m] == concFBdD[i]) {
+      permut[i] = m;
+      concBdD[i] = conc[m];
+    }
+    int permutM = 0;
+    String permutMS = "";
+    permutM = concF[n-i-1];
+    concF[n-i-1] = concF[permut[i]];
+    concF[permut[i]] = permutM;
+    permutMS = conc[n-i-1];
+    conc[n-i-1] = conc[permut[i]];
+    conc[permut[i]] = permutMS;
   }
 }
