@@ -1,14 +1,14 @@
 PFont font1;
 Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 40, 'A'); 
 Gasto gasto2 = new Gasto(1,1,2016, "Gasóleo", 33.06, 'A'); 
-boolean[] menE = new boolean[9];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
+boolean[] menE = new boolean[200];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
 byte menInd;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
 int numGastos = 0;
 int numConcDistintos = 0;
-String[] concBdD = new String[2000];
-int[] concFBdD = new int[2000];
+String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
+int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
 
 void setup() {
   size(600,250);
@@ -36,8 +36,9 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
-    /*  Aquí para mirar el vector de los conceptos ordenados.
-    for (int n = 0; n < numConcDistintos; n++) {
+    //text(numConcDistintos, 250,50);
+    /*
+    for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
     }
     */
@@ -130,15 +131,67 @@ void draw() {
       line(140, 196, 565, 196);
       rect(465, 202, 100, 30);
       rect(144, 202, 270, 30);
-      for (int n = 0; n < numConcDistintos/2; n++) {  // Aquí es por donde tengo que seguir.
-        rect(150, 60+38*n, 200, 30);
-        rect(150+210, 60+38*n, 200, 30);
+      // Esto va dentro de una scrollbar. Tengo que redibujar muchas cosas a partir de aquí para hacer algo tipo máscara.
+      if (numConcDistintos != 0) {
+        if (numConcDistintos%2 == 0) {
+          for (int n = 0; n < numConcDistintos/2; n++) {
+            stroke(110);
+            fill(0);
+            rect(150, 50+40*n, 200, 30);
+            rect(150+210, 50+40*n, 200, 30);
+            noStroke();
+            fill(250);
+            textFont(font1,19);
+            text(concBdD[2*n], 160, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
+            text(concBdD[2*n+1], 160+210, 72+40*n);
+            stroke(110);
+            fill(150, 0, 150, 70);
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+              rect(150, 50+40*n, 200, 30);
+              menE[2*n+2] = true;
+            } else {
+              menE[2*n+2] = false;
+            } if (360 <= mouseX && mouseX <= 560 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+              rect(150+210, 50+40*n, 200, 30);
+              menE[2*n+3] = true;
+            } else {
+              menE[2*n+3] = false;
+            }
+          }
+        } else {
+          for (int n = 0; n < numConcDistintos/2 + 1; n++) {
+            stroke(110);
+            fill(0);
+            rect(150, 50+40*n, 200, 30);
+            if (n != numConcDistintos/2) rect(150+210, 50+40*n, 200, 30);
+            noStroke();
+            fill(250);
+            textFont(font1,19);
+            text(concBdD[2*n], 160, 72+40*n);
+            if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
+            stroke(110);
+            fill(150, 0, 150, 70);
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+              rect(150, 50+40*n, 200, 30);
+              menE[2*n+2] = true;
+            } else {
+              menE[2*n+2] = false;
+            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+              rect(150+210, 50+40*n, 200, 30);
+              menE[2*n+3] = true;
+            } else {
+              menE[2*n+3] = false;
+            }
+          }
+        }
       }
+      //
+      
       noStroke();
       fill(250);
-      textFont(font1,21);
+      textFont(font1,19);
       text("Volver", 487, 225);
-      text("Añadir nuevo concepto", 166, 225);
+      text("Añadir nuevo concepto", 176, 225);
       stroke(110);
       fill(150, 0, 150, 70);
       if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
@@ -158,14 +211,12 @@ void draw() {
 
 void mouseClicked() { 
   if (menInd == 0) {
-    if (menE[0]) {
-      // Ver Gastos.
-    } else if (menE[1]) {
-      menInd = 2; 
-    } else if (menE[2]) {
-      // Producir pdf (Menú para elegir).
-    } else if (menE[3]) {
-      // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
+    if (menE[0]) {  // Ver Gastos.
+    } else if (menE[1]) {  // Añadir gasto.
+      menInd = 2;
+      menE[1] = false;
+    } else if (menE[2]) {  // Producir pdf (Menú para elegir).
+    } else if (menE[3]) {  // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
     }
   } else if (menInd == 2) {
     if (menE[0]) { // Concepto. Abrir Menú.
@@ -186,7 +237,7 @@ void mouseClicked() {
       // Capítulo. Menú.
     } else if (menE[7]) { // Volver al inicio.
       menInd = 0;
-      menE[6] = false;
+      menE[7] = false;
     } else if (menE[8]) {
       // Introducir: Verifica los datos de todos los apartados y añade el gasto.
     }
@@ -196,7 +247,7 @@ void mouseClicked() {
       menE[0] = false;
     } else if (menE[1]) {
       // Nuevo concepto. Mandar a editor de texto.
-    } else if (menE[2]) {
+    } else if (menE[2]) {  // Conceptos número n en n+2. Aquí tengo que poner un bucle for.
       // Concepto número 1.
     }
   }
@@ -294,22 +345,22 @@ void ConceptosPorFrecuencia() {
   }
   n--;
   numConcDistintos = n;
-  int[] permut = new int[n];    // Ordeno;
+  int permut = 0;  // Ordeno;
+  int permutM = 0;
+  String permutMS = "";
   for (int i = 0; i < n; i++) {
     int[] concFInv= new int[n-i];
     for (int m = 0; m < n-i; m++) concFInv[m] = concF[m];
     concFBdD[i] = max(concFInv);
     for (int m = 0; m < n-i; m++) if (concFInv[m] == concFBdD[i]) {
-      permut[i] = m;
+      permut = m;
       concBdD[i] = conc[m];
     }
-    int permutM = 0;
-    String permutMS = "";
     permutM = concF[n-i-1];
-    concF[n-i-1] = concF[permut[i]];
-    concF[permut[i]] = permutM;
+    concF[n-i-1] = concF[permut];
+    concF[permut] = permutM;
     permutMS = conc[n-i-1];
-    conc[n-i-1] = conc[permut[i]];
-    conc[permut[i]] = permutMS;
+    conc[n-i-1] = conc[permut];
+    conc[permut] = permutMS;
   }
 }
