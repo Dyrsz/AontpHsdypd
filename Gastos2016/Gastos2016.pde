@@ -133,6 +133,8 @@ void draw() {
       rect(465, 202, 100, 30);
       rect(144, 202, 270, 30);
       // Esto va dentro de una scrollbar. Tengo que redibujar muchas cosas a partir de aquí para hacer algo tipo máscara.
+      pushMatrix();
+      translate(0,scrllBarAC);
       if (numConcDistintos != 0) {
         if (numConcDistintos%2 == 0) {
           for (int n = 0; n < numConcDistintos/2; n++) {
@@ -147,12 +149,12 @@ void draw() {
             text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
               rect(150, 50+40*n, 200, 30);
               menE[2*n+2] = true;
             } else {
               menE[2*n+2] = false;
-            } if (360 <= mouseX && mouseX <= 560 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+            } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
               rect(150+210, 50+40*n, 200, 30);
               menE[2*n+3] = true;
             } else {
@@ -172,12 +174,12 @@ void draw() {
             if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
               rect(150, 50+40*n, 200, 30);
               menE[2*n+2] = true;
             } else {
               menE[2*n+2] = false;
-            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n <= mouseY && mouseY <= 80+40*n) {
+            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC) {
               rect(150+210, 50+40*n, 200, 30);
               menE[2*n+3] = true;
             } else {
@@ -186,6 +188,7 @@ void draw() {
           }
         }
       }
+      popMatrix();
       //
       
       noStroke();
@@ -256,7 +259,19 @@ void mouseClicked() {
 }
 
 void mouseWheel (MouseEvent event) {
-  scrllBarAC += event.getCount();
+  if (scrllBarAC <= 0) {
+    scrllBarAC -= 7*event.getCount();
+    if (scrllBarAC > 0) scrllBarAC = 0; 
+    if (event.getCount() > 0) {
+      if (numConcDistintos != 0) {
+        if (numConcDistintos%2 == 0) {
+          if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+        } else {
+          if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) scrllBarAC = 166-(60+40*(numConcDistintos/2));
+        }
+      }
+    }
+  }
 }
 
 class Gasto {
