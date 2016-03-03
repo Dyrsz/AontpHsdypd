@@ -9,6 +9,7 @@ int numGastos = 0;
 int numConcDistintos = 0;
 String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
+float scrllBarAC = 0;
 
 void setup() {
   size(600,250);
@@ -36,7 +37,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
-    //text(numConcDistintos, 250,50);
+    //text(scrllBarAC, 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
@@ -222,6 +223,7 @@ void mouseClicked() {
     if (menE[0]) { // Concepto. Abrir Menú.
       carga();
       ConceptosPorFrecuencia();
+      scrllBarAC = 0;
       menInd = 20;
     } else if (menE[1]) {
       // Clase del concepto. Otro menú, también. 
@@ -251,6 +253,10 @@ void mouseClicked() {
       // Concepto número 1.
     }
   }
+}
+
+void mouseWheel (MouseEvent event) {
+  scrllBarAC += event.getCount();
 }
 
 class Gasto {
