@@ -3,6 +3,7 @@ Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 40, 'A');
 Gasto gasto2 = new Gasto(1,1,2016, "Gasóleo", 33.06, 'A'); 
 boolean[] menE = new boolean[200];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
 byte menInd;
+boolean cargaCorrecta = false;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
 int numGastos = 0;
@@ -15,7 +16,7 @@ void setup() {
   size(600,250);
   font1 = createFont("Arial",16,true);
   carga();
-  ConceptosPorFrecuencia();
+  if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
 }
 
 void draw() {
@@ -129,10 +130,7 @@ void draw() {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
-      line(140, 196, 565, 196);
-      rect(465, 202, 100, 30);
-      rect(144, 202, 270, 30);
-      // Esto va dentro de una scrollbar. Tengo que redibujar muchas cosas a partir de aquí para hacer algo tipo máscara.
+      // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo máscara.
       pushMatrix();
       translate(0,scrllBarAC);
       if (numConcDistintos != 0) {
@@ -149,12 +147,12 @@ void draw() {
             text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150, 50+40*n, 200, 30);
               menE[2*n+2] = true;
             } else {
               menE[2*n+2] = false;
-            } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
+            } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150+210, 50+40*n, 200, 30);
               menE[2*n+3] = true;
             } else {
@@ -174,12 +172,12 @@ void draw() {
             if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC) {
+            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150, 50+40*n, 200, 30);
               menE[2*n+2] = true;
             } else {
               menE[2*n+2] = false;
-            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC) {
+            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150+210, 50+40*n, 200, 30);
               menE[2*n+3] = true;
             } else {
@@ -190,7 +188,24 @@ void draw() {
       }
       popMatrix();
       //
-      
+      noStroke();
+      fill(0);
+      rect(0, 0, width, 40);
+      rect(130, 196, width, 200);
+      stroke(110);
+      line(135, 40, 575, 40);
+      line(135, 80, 135, 240);
+      line(575, 80, 575, 240);
+      line(135, 240, 575, 240);
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Añadir gasto nuevo",105,30);
+      stroke(110);
+      fill(0);
+      line(140, 196, 565, 196);
+      rect(465, 202, 100, 30);
+      rect(144, 202, 270, 30);
       noStroke();
       fill(250);
       textFont(font1,19);
@@ -225,7 +240,7 @@ void mouseClicked() {
   } else if (menInd == 2) {
     if (menE[0]) { // Concepto. Abrir Menú.
       carga();
-      ConceptosPorFrecuencia();
+      if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
       scrllBarAC = 0;
       menInd = 20;
     } else if (menE[1]) {
@@ -264,10 +279,14 @@ void mouseWheel (MouseEvent event) {
     if (scrllBarAC > 0) scrllBarAC = 0; 
     if (event.getCount() > 0) {
       if (numConcDistintos != 0) {
-        if (numConcDistintos%2 == 0) {
-          if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+        if (numConcDistintos > 6) {
+          if (numConcDistintos%2 == 0) {
+            if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+          } else {
+            if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) scrllBarAC = 166-(60+40*(numConcDistintos/2));
+          }
         } else {
-          if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) scrllBarAC = 166-(60+40*(numConcDistintos/2));
+          scrllBarAC = 0;
         }
       }
     }
@@ -335,6 +354,9 @@ void carga() {
   DatosBdD = loadStrings("BdD.dat");
   if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
   numGastos = DatosBdD.length;
+  byte c = 0;
+  if (GastosBdD[0].length == 9) for (int i = 0; i < 9; i++) if (!GastosBdD[0][i].equals("")) c++;
+  if (c == 9) cargaCorrecta = true;
 }
 
 void ConceptosPorFrecuencia() {
@@ -358,14 +380,22 @@ void ConceptosPorFrecuencia() {
       }
     }
   }
-  boolean b = true;
-  n = 0;
-  while (b) {
-    if (concF[n] == 0) b = false;
-    n++;
+  if (numGastos > 1) {
+    boolean b = true;
+    n = 0;
+    while (b) {
+      if (n == numGastos) {
+        b = false;
+      } else {
+        if (concF[n] == 0) b = false;
+      }
+      n++;
+    }
+    n--;
+    numConcDistintos = n;
+  } else {
+    numConcDistintos = 1;
   }
-  n--;
-  numConcDistintos = n;
   int permut = 0;  // Ordeno;
   int permutM = 0;
   String permutMS = "";
