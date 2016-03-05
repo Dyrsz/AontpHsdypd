@@ -11,6 +11,7 @@ int numConcDistintos = 0;
 String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
 float scrllBarAC = 0;
+String[] ANGasto = new String[9];
 
 void setup() {
   size(600,250);
@@ -60,21 +61,6 @@ void draw() {
     rect(345, 202, 100, 30);
     rect(465, 202, 100, 30);
     line(40, 115, 560, 115);
-    noStroke();
-    fill(250);
-    textFont(font1,21);
-    text("Añadir gasto nuevo",105,30);
-    textFont(font1,17);
-    text("Concepto:", 45, 70);
-    text("Clase:", 445, 70);
-    text("Fecha:", 345, 100);
-    text("Base:", 45, 100);
-    text("Tipo IVA:", 45, 140);
-    text("IVA:", 190, 140);
-    text("Total:", 345, 140);
-    text("Capítulo:", 45, 170);
-    text("Volver", 370, 223);
-    text("Introducir", 480, 223);
     if (menInd == 2) {
       stroke(110);
       fill(150, 0, 150, 70);
@@ -126,6 +112,22 @@ void draw() {
       } else {
         menE[6] = false;
       }
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Añadir gasto nuevo",105,30);
+      textFont(font1,17);
+      text("Concepto:", 45, 70);
+      text("Clase:", 445, 70);
+      text("Fecha:", 345, 100);
+      text("Base:", 45, 100);
+      text("Tipo IVA:", 45, 140);
+      text("IVA:", 190, 140);
+      text("Total:", 345, 140);
+      text("Capítulo:", 45, 170);
+      text("Volver", 370, 223);
+      text("Introducir", 480, 223);
+      if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
     } else if (menInd == 20) {
       stroke(110);
       fill(0);
@@ -140,11 +142,6 @@ void draw() {
             fill(0);
             rect(150, 50+40*n, 200, 30);
             rect(150+210, 50+40*n, 200, 30);
-            noStroke();
-            fill(250);
-            textFont(font1,19);
-            text(concBdD[2*n], 160, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
-            text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
             if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
@@ -158,6 +155,11 @@ void draw() {
             } else {
               menE[2*n+3] = false;
             }
+            noStroke();
+            fill(250);
+            textFont(font1,19);
+            text(concBdD[2*n], 160, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
+            text(concBdD[2*n+1], 160+210, 72+40*n);
           }
         } else {
           for (int n = 0; n < numConcDistintos/2 + 1; n++) {
@@ -165,11 +167,6 @@ void draw() {
             fill(0);
             rect(150, 50+40*n, 200, 30);
             if (n != numConcDistintos/2) rect(150+210, 50+40*n, 200, 30);
-            noStroke();
-            fill(250);
-            textFont(font1,19);
-            text(concBdD[2*n], 160, 72+40*n);
-            if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
             stroke(110);
             fill(150, 0, 150, 70);
             if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
@@ -183,6 +180,11 @@ void draw() {
             } else {
               menE[2*n+3] = false;
             }
+            noStroke();
+            fill(250);
+            textFont(font1,19);
+            text(concBdD[2*n], 160, 72+40*n);
+            if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
           }
         }
       }
@@ -201,16 +203,16 @@ void draw() {
       fill(250);
       textFont(font1,21);
       text("Añadir gasto nuevo",105,30);
+      textFont(font1,17);
+      text("Concepto:", 45, 70);
+      text("Base:", 45, 100);
+      text("Tipo IVA:", 45, 140);
+      text("Capítulo:", 45, 170);
       stroke(110);
       fill(0);
       line(140, 196, 565, 196);
       rect(465, 202, 100, 30);
       rect(144, 202, 270, 30);
-      noStroke();
-      fill(250);
-      textFont(font1,19);
-      text("Volver", 487, 225);
-      text("Añadir nuevo concepto", 176, 225);
       stroke(110);
       fill(150, 0, 150, 70);
       if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
@@ -223,7 +225,12 @@ void draw() {
         menE[1] = true;
       } else {
         menE[1] = false;
-      }   
+      }
+      noStroke();
+      fill(250);
+      textFont(font1,19);
+      text("Volver", 487, 225);
+      text("Añadir nuevo concepto", 176, 225);
     }
   }
 }
@@ -234,6 +241,7 @@ void mouseClicked() {
     } else if (menE[1]) {  // Añadir gasto.
       menInd = 2;
       menE[1] = false;
+      for (byte b = 0; b < 9; b++) ANGasto[b] = "";
     } else if (menE[2]) {  // Producir pdf (Menú para elegir).
     } else if (menE[3]) {  // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
     }
@@ -267,8 +275,12 @@ void mouseClicked() {
       menE[0] = false;
     } else if (menE[1]) {
       // Nuevo concepto. Mandar a editor de texto.
-    } else if (menE[2]) {  // Conceptos número n en n+2. Aquí tengo que poner un bucle for.
-      // Concepto número 1.
+    } else { 
+      for (int n = 0; n < numConcDistintos; n++) if (menE[2+n]) {  // Conceptos número n en n+2. Aquí tengo que poner un bucle for.
+        ANGasto[3] = concBdD[n];
+        menInd = 2;
+        menE[2+n] = false;
+      }
     }
   }
 }
