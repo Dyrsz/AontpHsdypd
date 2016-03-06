@@ -11,7 +11,18 @@ int numConcDistintos = 0;
 String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
 float scrllBarAC = 0;
+float scrllBarMap = 0;
+boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
 String[] ANGasto = new String[9];
+
+/*  
+  1. En los GastosBdD tengo que buscar una función que, de todos ellos, extraiga los que tienen el mismo concepto. Y, luego, ordene por frecuencia las clases.
+  
+  A1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
+  A2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
+  A3. Puedo hacer una función para las scrollbars. Esta es más complicada: Una que marque la máscara y tape lo de fuera, luego el contenido, y los tres botones y los mapeos.
+  A4. Puede que tuviera que hacer una función para extraer y ordenar por fecuencias más abstracta.
+*/
 
 void setup() {
   size(600,250);
@@ -55,12 +66,19 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
     rect(465, 202, 100, 30);
     line(40, 115, 560, 115);
+    noStroke();
+    fill(250);
+    textFont(font1,21);
+    text("Añadir gasto nuevo",105,30);
+    textFont(font1,17);
+    text("Volver", 370, 223);
+    text("Introducir", 480, 223);
     if (menInd == 2) {
       stroke(110);
       fill(150, 0, 150, 70);
@@ -128,12 +146,12 @@ void draw() {
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 520, 70);
     } else if (menInd == 20) {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
-      // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo máscara.
-      pushMatrix();
+      pushMatrix();  // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo máscara.
       translate(0,scrllBarAC);
       if (numConcDistintos != 0) {
         if (numConcDistintos%2 == 0) {
@@ -146,14 +164,14 @@ void draw() {
             fill(150, 0, 150, 70);
             if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150, 50+40*n, 200, 30);
-              menE[2*n+2] = true;
+              menE[2*n+5] = true;
             } else {
-              menE[2*n+2] = false;
+              menE[2*n+5] = false;
             } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150+210, 50+40*n, 200, 30);
-              menE[2*n+3] = true;
+              menE[2*n+6] = true;
             } else {
-              menE[2*n+3] = false;
+              menE[2*n+6] = false;
             }
             noStroke();
             fill(250);
@@ -171,14 +189,14 @@ void draw() {
             fill(150, 0, 150, 70);
             if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150, 50+40*n, 200, 30);
-              menE[2*n+2] = true;
+              menE[2*n+5] = true;
             } else {
-              menE[2*n+2] = false;
+              menE[2*n+5] = false;
             } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150+210, 50+40*n, 200, 30);
-              menE[2*n+3] = true;
+              menE[2*n+6] = true;
             } else {
-              menE[2*n+3] = false;
+              menE[2*n+6] = false;
             }
             noStroke();
             fill(250);
@@ -189,7 +207,6 @@ void draw() {
         }
       }
       popMatrix();
-      //
       noStroke();
       fill(0);
       rect(0, 0, width, 40);
@@ -231,6 +248,51 @@ void draw() {
       textFont(font1,19);
       text("Volver", 487, 225);
       text("Añadir nuevo concepto", 176, 225);
+      noStroke();  // scrollbar
+      fill(250);
+      if (numConcDistintos > 6) {
+        if (scrllBarAC != 0) {
+          if (568 <= mouseX && mouseX <= 582 && 50 <= mouseY && mouseY <= 60) {
+            triangle(566, 62, 584, 62, 575, 48);
+            menE[2] = true;
+          } else {
+            triangle(568, 60, 582, 60, 575, 50);
+            menE[2] = false;
+          }
+        } else {
+          menE[2] = false; 
+        }
+        if (!scrllBajo) {
+          if (568 <= mouseX && mouseX <= 582 && 180 <= mouseY && mouseY <= 190) {
+            triangle(566, 178, 584, 178, 575, 192);
+            menE[3] = true;
+          } else {
+            triangle(568, 180, 582, 180, 575, 190);
+            menE[3] = false;
+          }
+        } 
+        if (numConcDistintos%2 == 0) {
+          scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2 - 1)), 70, 170);
+        } else {
+          scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2)), 70, 170);
+        }
+        if (567 <= mouseX && mouseX <= 583 && scrllBarMap-8 <= mouseY && mouseY <= scrllBarMap+8) {
+          ellipse(575, scrllBarMap, 10, 10);
+          menE[4] = true;
+        } else {
+          ellipse(575, scrllBarMap, 8, 8);
+          menE[4] = false;
+        }
+      }
+    } else if (menInd == 21) {
+      stroke(110);
+      fill(0);
+      rect(35, 45, 530, 140);
+      noStroke();
+      fill(250);
+      textFont(font1,19);
+      text("Debe añadir un concepto primero.", 155, 90);
+      text("Click para continuar.", 205, 160);
     }
   }
 }
@@ -251,8 +313,12 @@ void mouseClicked() {
       if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
       scrllBarAC = 0;
       menInd = 20;
-    } else if (menE[1]) {
-      // Clase del concepto. Otro menú, también. 
+    } else if (menE[1]) {  // Clase.
+      if (ANGasto[3].equals("")) {  // Error.
+        menInd = 21;
+      } else {  // Clase del concepto. Otro menú, también. 
+      
+      }
     } else if (menE[2]) {
       // Base. Editor. Afecta a Total.
     } else if (menE[3]) {
@@ -275,13 +341,34 @@ void mouseClicked() {
       menE[0] = false;
     } else if (menE[1]) {
       // Nuevo concepto. Mandar a editor de texto.
+    } else if (menE[2]) {  // ScrollBar arriba.
+      scrllBarAC += 20;
+      scrllBajo = false;
+      if (scrllBarAC > 0) scrllBarAC = 0;
+    } else if (menE[3]) {  // ScrollBar abajo.
+      scrllBarAC -= 20;
+      if (numConcDistintos%2 == 0) {
+        if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
+          scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+          scrllBajo = true;
+        }
+      } else {
+        if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
+          scrllBarAC = 166-(60+40*(numConcDistintos/2));
+          scrllBajo = true;
+        }
+      }
+    } else if (menE[4]) {  // ScrollBar cuerpo. Aquí nada.
     } else { 
-      for (int n = 0; n < numConcDistintos; n++) if (menE[2+n]) {  // Conceptos número n en n+2. Aquí tengo que poner un bucle for.
+      for (int n = 0; n < numConcDistintos; n++) if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
         ANGasto[3] = concBdD[n];
+        ANGasto[4] = "A";
         menInd = 2;
-        menE[2+n] = false;
+        menE[5+n] = false;
       }
     }
+  } else if (menInd == 21) {
+    menInd = 2;
   }
 }
 
@@ -293,12 +380,46 @@ void mouseWheel (MouseEvent event) {
       if (numConcDistintos != 0) {
         if (numConcDistintos > 6) {
           if (numConcDistintos%2 == 0) {
-            if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+            if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
+              scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+              scrllBajo = true;
+            }
           } else {
-            if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) scrllBarAC = 166-(60+40*(numConcDistintos/2));
+            if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
+              scrllBarAC = 166-(60+40*(numConcDistintos/2));
+              scrllBajo = true;
+            }
           }
         } else {
           scrllBarAC = 0;
+        }
+      }
+    } else {
+      scrllBajo = false;
+    }
+  }
+}
+
+void mouseDragged () {
+  if (menInd == 20) {
+    if (menE[4]) {
+      if (numConcDistintos%2 == 0) {
+        scrllBarAC = map(mouseY, 70, 170, 0, 166-(60+40*(numConcDistintos/2 - 1)));
+        if (scrllBarAC > 0) scrllBarAC = 0;
+        if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
+          scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+          scrllBajo = true;
+        } else {
+          scrllBajo = false;
+        }
+      } else {
+        scrllBarAC = map(mouseY, 70, 170, 0, 166-(60+40*(numConcDistintos/2)));
+        if (scrllBarAC > 0) scrllBarAC = 0;
+        if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
+          scrllBarAC = 166-(60+40*(numConcDistintos/2));
+          scrllBajo = true;
+        } else {
+          scrllBajo = false;
         }
       }
     }
