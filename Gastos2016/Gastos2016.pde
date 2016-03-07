@@ -14,14 +14,21 @@ float scrllBarAC = 0;
 float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
 String[] ANGasto = new String[9];
+String textEdit = "";                 // Variable del texto que se introduce.
+boolean tild;                         // Variables de editor de texto.    
+boolean umlaut;
+char letter;
+char[] ch1;
 
-/*  
-  1. En los GastosBdD tengo que buscar una función que, de todos ellos, extraiga los que tienen el mismo concepto. Y, luego, ordene por frecuencia las clases.
+/*
+  Introducir conceptos insertados con el editor de texto. Tanto clickando como dando al enter.
   
-  A1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
-  A2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
-  A3. Puedo hacer una función para las scrollbars. Esta es más complicada: Una que marque la máscara y tape lo de fuera, luego el contenido, y los tres botones y los mapeos.
-  A4. Puede que tuviera que hacer una función para extraer y ordenar por fecuencias más abstracta.
+  R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
+
+  Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
+  Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
+  Extra3. Puedo hacer una función para las scrollbars. Esta es más complicada: Una que marque la máscara y tape lo de fuera, luego el contenido, y los tres botones y los mapeos.
+  Extra4. Puede que tuviera que hacer una función para extraer y ordenar por fecuencias más abstracta.
 */
 
 void setup() {
@@ -66,7 +73,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20 || menInd == 21) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 50) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -146,8 +153,8 @@ void draw() {
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
-      if (!ANGasto[4].equals("")) text(ANGasto[4], 520, 70);
-    } else if (menInd == 20) {
+      if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
+    } else if (menInd == 20 || menInd == 50) {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
@@ -237,7 +244,7 @@ void draw() {
         menE[0] = true;
       } else {
         menE[0] = false;
-      } if (144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232) {
+      } if (menInd == 20) if (144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232) {
         rect(144, 202, 270, 30);
         menE[1] = true;
       } else {
@@ -247,7 +254,26 @@ void draw() {
       fill(250);
       textFont(font1,19);
       text("Volver", 487, 225);
-      text("Añadir nuevo concepto", 176, 225);
+      if (menInd == 20) {
+        text("Añadir nuevo concepto", 176, 225);
+      } else if (menInd == 50) {
+        text(textEdit, 155, 225);
+        stroke(110);
+        if (millis()%1500 > 500) line(157 + textWidth(textEdit), 207, 157 + textWidth(textEdit), 227);
+        fill(0);
+        rect(420, 202, 39, 30);
+        fill(150, 0, 150, 70);
+        if (420 <= mouseX && mouseX <= 459 && 202 <= mouseY && mouseY <= 232) {
+          rect(420, 202, 39, 30);
+          menE[1] = true;
+        } else {
+          menE[1] = false;
+        }
+        noStroke();
+        fill(250);
+        textFont(font1,19);
+        text("->", 430, 225);
+      }
       noStroke();  // scrollbar
       fill(250);
       if (numConcDistintos > 6) {
@@ -293,6 +319,50 @@ void draw() {
       textFont(font1,19);
       text("Debe añadir un concepto primero.", 155, 90);
       text("Click para continuar.", 205, 160);
+    } else if (menInd == 22) {
+      stroke(110);
+      fill(0);
+      rect(500, 78, 50, 27);
+      rect(500, 105, 50, 27);
+      rect(500, 132, 50, 27);
+      stroke(110);
+      fill(150, 0, 150, 70);
+      if (500 <= mouseX && mouseX <= 550 && 78 <= mouseY && mouseY < 105) {
+        rect(500, 78, 50, 27);
+        menE[0] = true;
+      } else {
+        menE[0] = false;
+      } if (500 <= mouseX && mouseX <= 550 && 105 <= mouseY && mouseY < 132) {
+        rect(500, 105, 50, 27);
+        menE[1] = true;
+      } else {
+        menE[1] = false;
+      } if (500 <= mouseX && mouseX <= 550 && 132 <= mouseY && mouseY < 159) {
+        rect(500, 132, 50, 27);
+        menE[2] = true;
+      } else {
+        menE[2] = false;
+      }
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Añadir gasto nuevo",105,30);
+      textFont(font1,17);
+      text("Concepto:", 45, 70);
+      text("Clase:", 445, 70);
+      text("Fecha:", 345, 100);
+      text("Base:", 45, 100);
+      text("Tipo IVA:", 45, 140);
+      text("IVA:", 190, 140);
+      text("Total:", 345, 140);
+      text("Capítulo:", 45, 170);
+      text("Volver", 370, 223);
+      text("Introducir", 480, 223);
+      text("A", 520, 98);
+      text("B", 520, 125);
+      text("C", 520, 152);
+      if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
     }
   }
 }
@@ -312,13 +382,15 @@ void mouseClicked() {
       carga();
       if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
       scrllBarAC = 0;
+      textEdit = "";
       menInd = 20;
     } else if (menE[1]) {  // Clase.
       if (ANGasto[3].equals("")) {  // Error.
         menInd = 21;
       } else {  // Clase del concepto. Otro menú, también. 
-      
+        menInd = 22;
       }
+      menE[1] = false;
     } else if (menE[2]) {
       // Base. Editor. Afecta a Total.
     } else if (menE[3]) {
@@ -335,12 +407,17 @@ void mouseClicked() {
     } else if (menE[8]) {
       // Introducir: Verifica los datos de todos los apartados y añade el gasto.
     }
-  } else if (menInd == 20) {
+  } else if (menInd == 20 || menInd == 50) {
     if (menE[0]) { // Volver al menú de añadir gasto.
       menInd = 2;
       menE[0] = false;
-    } else if (menE[1]) {
-      // Nuevo concepto. Mandar a editor de texto.
+    } else if (menE[1]) {  // Nuevo concepto. Mandar a editor de texto.
+      if (menInd == 20) {
+        menInd = 50;
+        menE[1] = false;
+      } else {  // Introducir nuevo concepto.
+        
+      }
     } else if (menE[2]) {  // ScrollBar arriba.
       scrllBarAC += 20;
       scrllBajo = false;
@@ -359,15 +436,30 @@ void mouseClicked() {
         }
       }
     } else if (menE[4]) {  // ScrollBar cuerpo. Aquí nada.
-    } else { 
-      for (int n = 0; n < numConcDistintos; n++) if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
-        ANGasto[3] = concBdD[n];
-        ANGasto[4] = "A";
-        menInd = 2;
-        menE[5+n] = false;
+    } else {
+      int nu = 0;
+      for (int n = 0; n < numConcDistintos; n++) {
+        if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
+          ANGasto[3] = concBdD[n];
+          ANGasto[5] = claseDominante(concBdD[n]);
+          menInd = 2;
+          menE[5+n] = false;
+        } else {
+          nu++; 
+        }
       }
+      if (menInd == 50) if (nu == numConcDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 20;
     }
   } else if (menInd == 21) {
+    menInd = 2;
+  } else if (menInd == 22) {
+    if (menE[0]) {  // A.
+      ANGasto[5] = "A";
+    } else if (menE[1]) {  // B.
+      ANGasto[5] = "B";
+    } else if (menE[2]) {  // C.
+      ANGasto[5] = "C";
+    }
     menInd = 2;
   }
 }
@@ -422,6 +514,45 @@ void mouseDragged () {
           scrllBajo = false;
         }
       }
+    }
+  }
+}
+
+void keyPressed() {
+  if (menInd == 50) {
+    if ((key >= 32 && key < 168) && key != 95) {
+      letter = key;
+      if (tild) {
+        if (key == 65) key = 193;
+        if (key == 69) key = 201;
+        if (key == 73) key = 205;
+        if (key == 79) key = 211;
+        if (key == 85) key = 218;
+        if (key == 97) key = 225;
+        if (key == 101) key = 233;
+        if (key == 105) key = 237;
+        if (key == 111) key = 243;
+        if (key == 117) key = 250;
+        tild = false;
+      }
+      if (umlaut) {
+        if (key == 85) key = 220;
+         if (key == 117) key = 252;
+         umlaut = false;
+      }
+      if (textWidth(textEdit) <= 240) textEdit = textEdit + key;
+    }
+    if (key == 168) umlaut = true;
+    if (key == 180) tild = true;
+    if (key == ENTER) {    // Introduce nuevo concepto.
+  
+    }
+    if (key == BACKSPACE) {
+      if (textEdit.length() >= 1) {
+        ch1 = new char[textEdit.length()-1];
+        for (int i = 0; i < textEdit.length()-1; i++) ch1[i] = textEdit.charAt(i);
+        textEdit = new String(ch1);
+      } else if (textEdit.equals("")) textEdit = "";
     }
   }
 }
@@ -547,4 +678,35 @@ void ConceptosPorFrecuencia() {
     conc[n-i-1] = conc[permut];
     conc[permut] = permutMS;
   }
+}
+
+String claseDominante(String con) {
+ int nu = 0;
+ int mu = 0;
+ int p = 0;
+ for (int i = 0; i < numGastos; i++) {
+   if (GastosBdD[i][3].equals(con)) nu++;
+ }
+ String[] concCl = new String[nu];
+ int[] concClF = new int[nu];
+ for (int i = 0; i < numGastos; i++) {
+   if (GastosBdD[i][3].equals(con)) {
+     mu = 0;
+     for (int j = 0; j < nu; j++) {
+       if (GastosBdD[i][5].equals(concCl[j])) {
+         concClF[j]++;
+       } else {
+         mu++; 
+       }
+     }
+     if (mu == nu) {
+       concCl[p] = GastosBdD[i][5];
+       p++;
+     }
+   }
+ }
+ for (int i = 0; i < nu; i++) {
+   if (concClF[i] == max(concClF)) p = i; 
+ }
+ return concCl[p];
 }
