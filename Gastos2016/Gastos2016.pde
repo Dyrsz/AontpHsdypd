@@ -21,9 +21,17 @@ char letter;
 char[] ch1;
 
 /*
-  Introducir conceptos insertados con el editor de texto. Tanto clickando como dando al enter.
+  - Seguridad: Al darle a base, pedir concepto primero. Exactamente lo mismo que con la clase.
   
+  Menu de Base: Base. IVA incluido. Base/3. IVA incluido/3.
+  Por hacer: Introducir tanto cuando se le da a Intro como cuando se pincha. Al introducir...
+  - Pasa la string a float.
+  - Opera con el float según estas variables anteriores, que son menE[i].
+  - Redondea el float.
+  - Pasa el float a String para mostrar dos decimales.
+
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
+  R2. Si hay un carácter de diferencia con el resto de conceptos, siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
 
   Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
   Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
@@ -57,7 +65,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
-    //text(scrllBarAC, 250,50);
+    //text(int('\''), 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
@@ -73,7 +81,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 50) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -86,56 +94,48 @@ void draw() {
     textFont(font1,17);
     text("Volver", 370, 223);
     text("Introducir", 480, 223);
-    if (menInd == 2) {
-      stroke(110);
-      fill(150, 0, 150, 70);
-      if (130 <= mouseX && mouseX <= 430 && 51 <= mouseY && mouseY <= 78) {
-        rect(130, 51, 300, 27);
-        menE[0] = true;
-      } else {
-        menE[0] = false;
-      } if (500 <= mouseX && mouseX <= 550 && 51 <= mouseY && mouseY <= 78) {
-        rect(500, 51, 50, 27);
-        menE[1] = true;
-      } else {
-        menE[1] = false;
-      } if (95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109) {
-        rect(95, 82, 235, 27);
-        menE[2] = true;
-      } else {
-        menE[2] = false;
-      } if (404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109) {
-        rect(404, 82, 146, 27);
-        menE[3] = true;
-      } else {
-        menE[3] = false;
-      } if (395 <= mouseX && mouseX <= 550 && 120 <= mouseY && mouseY <= 147) {
-        rect(395, 120, 155, 27);
-        menE[5] = true;
-      } else {
-        menE[5] = false;
-      } if (345 <= mouseX && mouseX <= 445 && 202 <= mouseY && mouseY <= 232) {
-        rect(345, 202, 100, 30);
-        menE[7] = true;
-      } else {
-        menE[7] = false;
-      } if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
-        rect(465, 202, 100, 30);
-        menE[8] = true;
-      } else {
-        menE[8] = false;
-      }    
-      fill(100, 80, 100, 70);
-      if (118 <= mouseX && mouseX <= 178 && 120 <= mouseY && mouseY <= 147) {
-        rect(118, 120, 60, 27);
-        menE[4] = true;
-      } else {
-        menE[4] = false;
-      } if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
-        rect(118, 152, 432, 27);
-        menE[6] = true;
-      } else {
-        menE[6] = false;
+    if (menInd == 2 || menInd == 24) {
+      if (menInd == 2) {
+        stroke(110);
+        fill(150, 0, 150, 70);
+        if (130 <= mouseX && mouseX <= 430 && 51 <= mouseY && mouseY <= 78) {
+          rect(130, 51, 300, 27);
+          menE[0] = true;
+        } else {
+          menE[0] = false;
+        } if (500 <= mouseX && mouseX <= 550 && 51 <= mouseY && mouseY <= 78) {
+          rect(500, 51, 50, 27);
+          menE[1] = true;
+        } else {
+          menE[1] = false;
+        } if (95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109) {
+          rect(95, 82, 235, 27);
+          menE[2] = true;
+        } else {
+          menE[2] = false;
+        } if (404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109) {
+          rect(404, 82, 146, 27);
+          menE[3] = true;
+        } else {
+          menE[3] = false;
+        } if (345 <= mouseX && mouseX <= 445 && 202 <= mouseY && mouseY <= 232) {
+          rect(345, 202, 100, 30);
+          menE[7] = true;
+        } else {
+          menE[7] = false;
+        } if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
+          rect(465, 202, 100, 30);
+          menE[8] = true;
+        } else {
+          menE[8] = false;
+        }    
+        fill(100, 80, 100, 70);
+        if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
+          rect(118, 152, 432, 27);
+          menE[6] = true;
+        } else {
+          menE[6] = false;
+        }
       }
       noStroke();
       fill(250);
@@ -154,6 +154,34 @@ void draw() {
       text("Introducir", 480, 223);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
+      if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (menInd == 24) {
+        if (menE[0]) {
+          text("Base", 150, 223);
+        } if (menE[1]) {
+          text("IVA incluido", 150, 223);
+        } if (menE[2]) {
+          text("Base/3", 150, 223);
+        } if (menE[3]) {
+          text("IVA incluido/3", 150, 223);
+        }
+        text(textEdit, 100, 100);
+        stroke(110);
+        if (millis()%1500 > 500) line(102 + textWidth(textEdit), 82, 102 + textWidth(textEdit), 102);
+        fill(0);
+        rect(290, 80, 39, 30);
+        fill(150, 0, 150, 70);
+        if (290 <= mouseX && mouseX <= 329 && 80 <= mouseY && mouseY <= 110) {
+          rect(290, 80, 39, 30);
+          menE[4] = true;
+        } else {
+          menE[4] = false;
+        }
+        noStroke();
+        fill(250);
+        textFont(font1,19);
+        text("->", 300, 103);
+      }
     } else if (menInd == 20 || menInd == 50) {
       stroke(110);
       fill(0);
@@ -325,6 +353,7 @@ void draw() {
       rect(500, 78, 50, 27);
       rect(500, 105, 50, 27);
       rect(500, 132, 50, 27);
+      rect(500, 159, 50, 27);
       stroke(110);
       fill(150, 0, 150, 70);
       if (500 <= mouseX && mouseX <= 550 && 78 <= mouseY && mouseY < 105) {
@@ -342,6 +371,11 @@ void draw() {
         menE[2] = true;
       } else {
         menE[2] = false;
+      } if (500 <= mouseX && mouseX <= 550 && 159 <= mouseY && mouseY < 186) {
+        rect(500, 159, 50, 27);
+        menE[3] = true;
+      } else {
+        menE[3] = false;
       }
       noStroke();
       fill(250);
@@ -361,8 +395,64 @@ void draw() {
       text("A", 520, 98);
       text("B", 520, 125);
       text("C", 520, 152);
+      text("D", 520, 179);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
+      if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+    } else if (menInd == 23) {
+      noStroke();
+      fill(250);
+      textFont(font1,17);
+      if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
+      if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      stroke(110);
+      fill(0);
+      rect(140, 50, 170, 27);
+      rect(140, 77, 170, 27);
+      rect(140, 104, 170, 27);
+      rect(140, 131, 170, 27);
+      stroke(110);
+      fill(150, 0, 150, 70);
+      if (140 <= mouseX && mouseX <= 310 && 50 <= mouseY && mouseY < 77) {
+        rect(140, 50, 170, 27);
+        menE[0] = true;
+      } else {
+        menE[0] = false;
+      } if (140 <= mouseX && mouseX <= 310 && 77 <= mouseY && mouseY < 104) {
+        rect(140, 77, 170, 27);
+        menE[1] = true;
+      } else {
+        menE[1] = false;
+      } if (140 <= mouseX && mouseX <= 310 && 104 <= mouseY && mouseY < 131) {
+        rect(140, 104, 170, 27);
+        menE[2] = true;
+      } else {
+        menE[2] = false;
+      } if (140 <= mouseX && mouseX <= 310 && 131 <= mouseY && mouseY < 158) {
+        rect(140, 131, 170, 27);
+        menE[3] = true;
+      } else {
+        menE[3] = false;
+      }
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Añadir gasto nuevo",105,30);
+      textFont(font1,17);
+      text("Concepto:", 45, 70);
+      text("Clase:", 445, 70);
+      text("Fecha:", 345, 100);
+      text("Base:", 45, 100);
+      text("Tipo IVA:", 45, 140);
+      text("Total:", 345, 140);
+      text("Capítulo:", 45, 170);
+      text("Volver", 370, 223);
+      text("Introducir", 480, 223);
+      text("Base", 160, 70);
+      text("IVA incluido", 160, 97);
+      text("Base/3", 160, 124);
+      text("IVA incluido/3", 160, 151);
     }
   }
 }
@@ -391,14 +481,13 @@ void mouseClicked() {
         menInd = 22;
       }
       menE[1] = false;
-    } else if (menE[2]) {
-      // Base. Editor. Afecta a Total.
+    } else if (menE[2]) {  // Base. Abre menú y termina en editor.
+      menInd = 23;
+      menE[2] = false;
     } else if (menE[3]) {
       // Fecha. Menú.
-    } else if (menE[4]) {
-      // Tipo IVA. Menú.
-    } else if (menE[5]) {
-      // Total. Editor. Afecta a Base.
+    } else if (menE[4]) {  // Tipo IVA. Descartado. Lo dejo así por no hacer ningún desplazamiento.
+    } else if (menE[5]) {  // Total. Descartado.
     } else if (menE[6]) {
       // Capítulo. Menú.
     } else if (menE[7]) { // Volver al inicio.
@@ -414,10 +503,12 @@ void mouseClicked() {
     } else if (menE[1]) {  // Nuevo concepto. Mandar a editor de texto.
       if (menInd == 20) {
         menInd = 50;
-        menE[1] = false;
       } else {  // Introducir nuevo concepto.
-        
+        ANGasto[3] = textEdit;
+        ANGasto[5] = "A";
+        menInd = 2;
       }
+      menE[1] = false;
     } else if (menE[2]) {  // ScrollBar arriba.
       scrllBarAC += 20;
       scrllBajo = false;
@@ -442,6 +533,15 @@ void mouseClicked() {
         if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
           ANGasto[3] = concBdD[n];
           ANGasto[5] = claseDominante(concBdD[n]);
+          if (ANGasto[5].equals("A")) {
+            ANGasto[6] = "21%";
+          } else if (ANGasto[5].equals("B")) {
+            ANGasto[6] = "10%";
+          } else if (ANGasto[5].equals("C")) {
+            ANGasto[6] = "4%";
+          } else if (ANGasto[5].equals("D")) {
+            ANGasto[6] = "0%";
+          }
           menInd = 2;
           menE[5+n] = false;
         } else {
@@ -455,12 +555,30 @@ void mouseClicked() {
   } else if (menInd == 22) {
     if (menE[0]) {  // A.
       ANGasto[5] = "A";
+      ANGasto[6] = "21%";
     } else if (menE[1]) {  // B.
       ANGasto[5] = "B";
+      ANGasto[6] = "10%";
     } else if (menE[2]) {  // C.
       ANGasto[5] = "C";
+      ANGasto[6] = "4%";
+    } else if (menE[3]) {  // D.
+      ANGasto[5] = "D";
+      ANGasto[6] = "0%";
     }
     menInd = 2;
+  } else if (menInd == 23) {
+    byte c = 0;
+    for (byte b = 0; b < 4; b++) if (!menE[b]) c++;
+    if (c == 4) {
+      menInd = 2;
+      for (byte b = 0; b < 4; b++) menE[b] = false;
+    } else {
+      textEdit = "";
+      menInd = 24;
+    }
+  } else if (menInd == 24) {
+    if (!(95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109)) menInd = 2;
   }
 }
 
@@ -520,7 +638,7 @@ void mouseDragged () {
 
 void keyPressed() {
   if (menInd == 50) {
-    if ((key >= 32 && key < 168) && key != 95) {
+    if ((key >= 32 && key < 250) && key != 95 && key !=168 && key != 180) {
       letter = key;
       if (tild) {
         if (key == 65) key = 193;
@@ -545,8 +663,27 @@ void keyPressed() {
     if (key == 168) umlaut = true;
     if (key == 180) tild = true;
     if (key == ENTER) {    // Introduce nuevo concepto.
-  
+      ANGasto[3] = textEdit;
+      ANGasto[5] = "A";
+      ANGasto[6] = "21%";
+      menInd = 2;
     }
+  } else if (menInd == 24) {
+    if (key >= 48 && key <= 57) {
+      letter = key;
+      if (textWidth(textEdit) <= 180) textEdit = textEdit + key;
+    } else if (key == 44 || key == 46 || key == 39)  {
+      key = 46;
+      boolean b = false;
+      if (textEdit.length() >= 1) {
+        for (int i = 0; i < textEdit.length(); i++) if (textEdit.charAt(i) == '.') b = true;
+        if (!b && textWidth(textEdit) <= 240) textEdit = textEdit + key;
+      }
+    } else if (key == 45) {
+      if (textEdit.length() == 0) textEdit = textEdit + key;
+    }
+  }
+  if (menInd == 24 || menInd == 50) {
     if (key == BACKSPACE) {
       if (textEdit.length() >= 1) {
         ch1 = new char[textEdit.length()-1];
