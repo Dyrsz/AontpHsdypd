@@ -14,6 +14,7 @@ float scrllBarAC = 0;
 float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
 String[] ANGasto = new String[9];
+String ANTotal = "";
 String textEdit = "";                 // Variable del texto que se introduce.
 boolean tild;                         // Variables de editor de texto.    
 boolean umlaut;
@@ -21,14 +22,15 @@ char letter;
 char[] ch1;
 
 /*
-  - Seguridad: Al darle a base, pedir concepto primero. Exactamente lo mismo que con la clase.
-  
   Menu de Base: Base. IVA incluido. Base/3. IVA incluido/3.
   Por hacer: Introducir tanto cuando se le da a Intro como cuando se pincha. Al introducir...
   - Pasa la string a float.
   - Opera con el float según estas variables anteriores, que son menE[i].
   - Redondea el float.
   - Pasa el float a String para mostrar dos decimales.
+
+  Cuando cambio la clase, cambio el total. Hacer un byte que guarde el tipo de base.
+  Pongo el IVA.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos, siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
@@ -153,8 +155,10 @@ void draw() {
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANTotal.equals("")) text(ANTotal, 395, 140);
       if (menInd == 24) {
         if (menE[0]) {
           text("Base", 150, 223);
@@ -397,15 +401,19 @@ void draw() {
       text("C", 520, 152);
       text("D", 520, 179);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANTotal.equals("")) text(ANTotal, 395, 140);
     } else if (menInd == 23) {
       noStroke();
       fill(250);
       textFont(font1,17);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANTotal.equals("")) text(ANTotal, 395, 140);
       stroke(110);
       fill(0);
       rect(140, 50, 170, 27);
@@ -481,8 +489,12 @@ void mouseClicked() {
         menInd = 22;
       }
       menE[1] = false;
-    } else if (menE[2]) {  // Base. Abre menú y termina en editor.
-      menInd = 23;
+    } else if (menE[2]) {  // Base.
+      if (ANGasto[3].equals("")) {  // Error.
+        menInd = 21;
+      } else {        // Abre menú y termina en editor.
+        menInd = 23;
+      }
       menE[2] = false;
     } else if (menE[3]) {
       // Fecha. Menú.
@@ -567,18 +579,41 @@ void mouseClicked() {
       ANGasto[6] = "0%";
     }
     menInd = 2;
-  } else if (menInd == 23) {
+  } else if (menInd == 23) {  // Menú para elegir el tipo de base a insertar.
     byte c = 0;
     for (byte b = 0; b < 4; b++) if (!menE[b]) c++;
     if (c == 4) {
       menInd = 2;
-      for (byte b = 0; b < 4; b++) menE[b] = false;
     } else {
       textEdit = "";
       menInd = 24;
     }
-  } else if (menInd == 24) {
-    if (!(95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109)) menInd = 2;
+  } else if (menInd == 24) {  // Menú de insertar base.
+    if (menE[4]) {
+      // Introduzco los datos.
+      float ba = float(textEdit);
+      float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
+      iv = iv/100f;
+      if (menE[0]) {          // Base.
+      } else if (menE[1]) {   // IVA incluido.
+        ba = ba/(1f+iv);
+      } else if (menE[2]) {   // Base/3.
+        ba = ba/3f;
+      } else if (menE[3]) {   // Iva incluido/3.
+        ba = ba/(1f+iv);
+        ba = ba/3f;
+      }
+      ANTotal = nfc(ba*(1+iv),2);
+      ANGasto[4] = nfc(ba,2);
+      //
+      menInd = 2;
+      menE[4] = false;
+    } else {
+      if (!(95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109)) {
+        for (byte b = 0; b < 4; b++) menE[b] = false;
+        menInd = 2;
+      }
+    }
   }
 }
 
