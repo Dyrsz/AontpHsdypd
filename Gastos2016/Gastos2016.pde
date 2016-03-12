@@ -15,7 +15,6 @@ float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
 String[] ANGasto = new String[9];
 String ANTotal = "";
-String ANIVA = "";
 String textEdit = "";                 // Variable del texto que se introduce.
 boolean tild;                         // Variables de editor de texto.    
 boolean umlaut;
@@ -23,7 +22,15 @@ char letter;
 char[] ch1;
 
 /*
-  - Para el próximo día, cierro el apartado de Capítulo.
+  Menu de Base: Base. IVA incluido. Base/3. IVA incluido/3.
+  Por hacer: Introducir tanto cuando se le da a Intro como cuando se pincha. Al introducir...
+  - Pasa la string a float.
+  - Opera con el float según estas variables anteriores, que son menE[i].
+  - Redondea el float.
+  - Pasa el float a String para mostrar dos decimales.
+
+  Cuando cambio la clase, cambio el total. Hacer un byte que guarde el tipo de base.
+  Pongo el IVA.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos, siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
@@ -148,11 +155,10 @@ void draw() {
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
-      if (menInd == 2) if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
-      if (!ANIVA.equals("")) text(ANIVA, 230, 140);
       if (menInd == 24) {
         if (menE[0]) {
           text("Base", 150, 223);
@@ -399,7 +405,6 @@ void draw() {
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
-      if (!ANIVA.equals("")) text(ANIVA, 230, 140);
     } else if (menInd == 23) {
       noStroke();
       fill(250);
@@ -409,7 +414,6 @@ void draw() {
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
-      if (!ANIVA.equals("")) text(ANIVA, 230, 140);
       stroke(110);
       fill(0);
       rect(140, 50, 170, 27);
@@ -514,11 +518,6 @@ void mouseClicked() {
       } else {  // Introducir nuevo concepto.
         ANGasto[3] = textEdit;
         ANGasto[5] = "A";
-        if (!ANGasto[4].equals("")) {
-          ANTotal = "";
-          ANIVA = "";
-          ANGasto[4] = "";
-        }
         menInd = 2;
       }
       menE[1] = false;
@@ -555,11 +554,6 @@ void mouseClicked() {
           } else if (ANGasto[5].equals("D")) {
             ANGasto[6] = "0%";
           }
-          if (!ANGasto[4].equals("")) {
-            ANTotal = "";
-            ANIVA = "";
-            ANGasto[4] = "";
-          }
           menInd = 2;
           menE[5+n] = false;
         } else {
@@ -570,7 +564,7 @@ void mouseClicked() {
     }
   } else if (menInd == 21) {
     menInd = 2;
-  } else if (menInd == 22) {  // Cambio de clase.
+  } else if (menInd == 22) {
     if (menE[0]) {  // A.
       ANGasto[5] = "A";
       ANGasto[6] = "21%";
@@ -584,11 +578,6 @@ void mouseClicked() {
       ANGasto[5] = "D";
       ANGasto[6] = "0%";
     }
-    if (!ANGasto[4].equals("")) {
-      ANTotal = "";
-      ANIVA = "";
-      ANGasto[4] = "";
-    }
     menInd = 2;
   } else if (menInd == 23) {  // Menú para elegir el tipo de base a insertar.
     byte c = 0;
@@ -600,28 +589,23 @@ void mouseClicked() {
       menInd = 24;
     }
   } else if (menInd == 24) {  // Menú de insertar base.
-    if (menE[4]) {        // Introduzco los datos.
-      if (textEdit.equals("")) {
-        ANTotal = "";
-        ANIVA = "";
-        ANGasto[4] = "";
-      } else {
-        float ba = float(textEdit);
-        float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
-        iv = iv/100f;
-        if (menE[0]) {          // Base.
-        } else if (menE[1]) {   // IVA incluido.
-          ba = ba/(1f+iv);
-        } else if (menE[2]) {   // Base/3.
-          ba = ba/3f;
-        } else if (menE[3]) {   // Iva incluido/3.
-          ba = ba/(1f+iv);
-          ba = ba/3f;
-        }
-        ANTotal = nfc(ba*(1+iv),2);
-        ANIVA = nfc(ba*iv,2);
-        ANGasto[4] = nfc(ba,2);
+    if (menE[4]) {
+      // Introduzco los datos.
+      float ba = float(textEdit);
+      float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
+      iv = iv/100f;
+      if (menE[0]) {          // Base.
+      } else if (menE[1]) {   // IVA incluido.
+        ba = ba/(1f+iv);
+      } else if (menE[2]) {   // Base/3.
+        ba = ba/3f;
+      } else if (menE[3]) {   // Iva incluido/3.
+        ba = ba/(1f+iv);
+        ba = ba/3f;
       }
+      ANTotal = nfc(ba*(1+iv),2);
+      ANGasto[4] = nfc(ba,2);
+      //
       menInd = 2;
       menE[4] = false;
     } else {
@@ -717,11 +701,6 @@ void keyPressed() {
       ANGasto[3] = textEdit;
       ANGasto[5] = "A";
       ANGasto[6] = "21%";
-      if (!ANGasto[4].equals("")) {
-        ANTotal = "";
-        ANIVA = "";
-        ANGasto[4] = "";
-      }
       menInd = 2;
     }
   } else if (menInd == 24) {
@@ -737,31 +716,6 @@ void keyPressed() {
       }
     } else if (key == 45) {
       if (textEdit.length() == 0) textEdit = textEdit + key;
-    }
-    if (key == ENTER) {    // Introduce la base.
-      if (textEdit.equals("")) {
-        ANTotal = "";
-        ANIVA = "";
-        ANGasto[4] = "";
-      } else {
-        float ba = float(textEdit);
-        float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
-        iv = iv/100f;
-        if (menE[0]) {          // Base.
-        } else if (menE[1]) {   // IVA incluido.
-          ba = ba/(1f+iv);
-        } else if (menE[2]) {   // Base/3.
-          ba = ba/3f;
-        } else if (menE[3]) {   // Iva incluido/3.
-          ba = ba/(1f+iv);
-          ba = ba/3f;
-        }
-        ANTotal = nfc(ba*(1+iv),2);
-        ANIVA = nfc(ba*iv,2);
-        ANGasto[4] = nfc(ba,2);
-        for (byte be = 0; be < 4; be++) menE[be] = false;
-      }
-      menInd = 2;
     }
   }
   if (menInd == 24 || menInd == 50) {
