@@ -23,10 +23,10 @@ char letter;
 char[] ch1;
 
 /*
-  - Para el próximo día, cierro el apartado de Capítulo.
+  - Menú de capítulo: Otra scrollbar y todo tal cual está el menú de añadir nuevo concepto.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
-  R2. Si hay un carácter de diferencia con el resto de conceptos, siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
+  R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
 
   Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
   Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
@@ -124,12 +124,25 @@ void draw() {
         } else {
           menE[8] = false;
         }    
-        fill(100, 80, 100, 70);
-        if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
-          rect(118, 152, 432, 27);
-          menE[6] = true;
+        if (!ANGasto[7].equals("")) {
+          fill(100, 80, 100, 70);
+          if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) rect(118, 152, 432, 27);
         } else {
-          menE[6] = false;
+          fill(150, 0, 150, 70);
+          if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) {
+            rect(118, 152, 432, 27);
+            if (!ANGasto[3].equals("")) {
+              menE[6] = true;
+            } else {
+              menE[1] = true;
+            }
+          } else {
+            if (!ANGasto[3].equals("")) {
+              menE[6] = false;
+            } else {
+              menE[1] = false;
+            }
+          }
         }
       }
       noStroke();
@@ -151,6 +164,7 @@ void draw() {
       if (menInd == 2) if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANGasto[7].equals("")) text(ANGasto[7], 140, 170);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
       if (!ANIVA.equals("")) text(ANIVA, 230, 140);
       if (menInd == 24) {
@@ -398,6 +412,7 @@ void draw() {
       if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANGasto[7].equals("")) text(ANGasto[7], 140, 170);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
       if (!ANIVA.equals("")) text(ANIVA, 230, 140);
     } else if (menInd == 23) {
@@ -408,6 +423,7 @@ void draw() {
       if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
       if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANGasto[7].equals("")) text(ANGasto[7], 140, 170);
       if (!ANTotal.equals("")) text(ANTotal, 395, 140);
       if (!ANIVA.equals("")) text(ANIVA, 230, 140);
       stroke(110);
@@ -514,11 +530,13 @@ void mouseClicked() {
       } else {  // Introducir nuevo concepto.
         ANGasto[3] = textEdit;
         ANGasto[5] = "A";
+        ANGasto[7] = "";
         if (!ANGasto[4].equals("")) {
           ANTotal = "";
           ANIVA = "";
           ANGasto[4] = "";
         }
+        if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
         menInd = 2;
       }
       menE[1] = false;
@@ -546,6 +564,7 @@ void mouseClicked() {
         if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
           ANGasto[3] = concBdD[n];
           ANGasto[5] = claseDominante(concBdD[n]);
+          ANGasto[7] = capitCon(ANGasto[3]);
           if (ANGasto[5].equals("A")) {
             ANGasto[6] = "21%";
           } else if (ANGasto[5].equals("B")) {
@@ -717,11 +736,13 @@ void keyPressed() {
       ANGasto[3] = textEdit;
       ANGasto[5] = "A";
       ANGasto[6] = "21%";
+      ANGasto[7] = "";
       if (!ANGasto[4].equals("")) {
         ANTotal = "";
         ANIVA = "";
         ANGasto[4] = "";
       }
+      if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
       menInd = 2;
     }
   } else if (menInd == 24) {
@@ -927,4 +948,21 @@ String claseDominante(String con) {
    if (concClF[i] == max(concClF)) p = i; 
  }
  return concCl[p];
+}
+
+boolean concExisteEnBdD(String con) {
+ boolean r = false;
+ for (int i = 0; i < numGastos; i++) if (GastosBdD[i][3].equals(con)) r = true;
+ return r;
+}
+
+String capitCon(String con) {
+ String cap = "";
+ for (int i = 0; i < numGastos; i++) {
+   if (GastosBdD[i][3].equals(con)) {
+     cap = GastosBdD[i][7];
+     i = numGastos-1;
+   }
+ }
+ return cap;
 }
