@@ -8,8 +8,11 @@ String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
 int numGastos = 0;
 int numConcDistintos = 0;
+int numCapDistintos = 0;
 String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
+String[] capBdD = new String[50];     // Lo mismo, con capítulos.
+int[] capFBdD = new int[50];
 float scrllBarAC = 0;
 float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
@@ -23,6 +26,8 @@ char letter;
 char[] ch1;
 
 /*
+  - Si le doy a volver en algún momento, falla la scrollbar. Mirar si es solo es capítulo o en concepto también.
+
   - Menú de capítulo: Otra scrollbar y todo tal cual está el menú de añadir nuevo concepto.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
@@ -38,7 +43,16 @@ void setup() {
   size(600,250);
   font1 = createFont("Arial",16,true);
   carga();
-  if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
+  if (!cargaCorrecta) {
+    // Aviso de error.  Esta parte la repito a principio de mouseclicked.
+  } else {
+    if (numGastos != 0) {
+      IndPorFrecuencia(byte(3));
+      IndPorFrecuencia(byte(7));
+    } else {
+      // No cargar los gastos existentes (no hay) (?).
+    }
+  }
 }
 
 void draw() {
@@ -76,7 +90,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50 || menInd == 60) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -194,62 +208,86 @@ void draw() {
         textFont(font1,19);
         text("->", 300, 103);
       }
-    } else if (menInd == 20 || menInd == 50) {
+    } else if (menInd == 20 || menInd == 50 || menInd == 60) {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
       pushMatrix();  // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo máscara.
       translate(0,scrllBarAC);
-      if (numConcDistintos != 0) {
-        if (numConcDistintos%2 == 0) {
-          for (int n = 0; n < numConcDistintos/2; n++) {
-            stroke(110);
-            fill(0);
-            rect(150, 50+40*n, 200, 30);
-            rect(150+210, 50+40*n, 200, 30);
-            stroke(110);
-            fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+      if (menInd == 20 || menInd == 50) {
+        if (numConcDistintos != 0) {
+          if (numConcDistintos%2 == 0) {
+            for (int n = 0; n < numConcDistintos/2; n++) {
+              stroke(110);
+              fill(0);
               rect(150, 50+40*n, 200, 30);
-              menE[2*n+5] = true;
-            } else {
-              menE[2*n+5] = false;
-            } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
               rect(150+210, 50+40*n, 200, 30);
-              menE[2*n+6] = true;
-            } else {
-              menE[2*n+6] = false;
+              stroke(110);
+              fill(150, 0, 150, 70);
+              if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+                rect(150, 50+40*n, 200, 30);
+                menE[2*n+5] = true;
+              } else {
+                menE[2*n+5] = false;
+              } if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+                rect(150+210, 50+40*n, 200, 30);
+                menE[2*n+6] = true;
+              } else {
+                menE[2*n+6] = false;
+              }
+              noStroke();
+              fill(250);
+              textFont(font1,19);
+              text(concBdD[2*n], 160, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
+              text(concBdD[2*n+1], 160+210, 72+40*n);
             }
-            noStroke();
-            fill(250);
-            textFont(font1,19);
-            text(concBdD[2*n], 160, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
-            text(concBdD[2*n+1], 160+210, 72+40*n);
+          } else {
+            for (int n = 0; n < numConcDistintos/2 + 1; n++) {
+              stroke(110);
+              fill(0);
+              rect(150, 50+40*n, 200, 30);
+              if (n != numConcDistintos/2) rect(150+210, 50+40*n, 200, 30);
+              stroke(110);
+              fill(150, 0, 150, 70);
+              if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+                rect(150, 50+40*n, 200, 30);
+                menE[2*n+5] = true;
+              } else {
+                menE[2*n+5] = false;
+              } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+                rect(150+210, 50+40*n, 200, 30);
+                menE[2*n+6] = true;
+              } else {
+                menE[2*n+6] = false;
+              }
+              noStroke();
+              fill(250);
+              textFont(font1,19);
+              text(concBdD[2*n], 160, 72+40*n);
+              if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
+            }
           }
-        } else {
-          for (int n = 0; n < numConcDistintos/2 + 1; n++) {
+        }
+      } else if (menInd == 60) {
+        if (numCapDistintos != 0) {
+          for (int n = 0; n < numCapDistintos; n++) {
             stroke(110);
             fill(0);
-            rect(150, 50+40*n, 200, 30);
-            if (n != numConcDistintos/2) rect(150+210, 50+40*n, 200, 30);
+            rect(150, 50+40*n, 410, 30);
             stroke(110);
             fill(150, 0, 150, 70);
-            if (150 <= mouseX && mouseX <= 350 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
-              rect(150, 50+40*n, 200, 30);
-              menE[2*n+5] = true;
+            if (150 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+              rect(150, 50+40*n, 410, 30);
+              menE[n+5] = true;
             } else {
-              menE[2*n+5] = false;
-            } if (n != numConcDistintos/2) if (360 <= mouseX && mouseX <= 560 && 50+40*n + scrllBarAC<= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
-              rect(150+210, 50+40*n, 200, 30);
-              menE[2*n+6] = true;
-            } else {
-              menE[2*n+6] = false;
+              menE[n+5] = false;
             }
             noStroke();
             fill(250);
             textFont(font1,19);
-            text(concBdD[2*n], 160, 72+40*n);
-            if (n != numConcDistintos/2) text(concBdD[2*n+1], 160+210, 72+40*n);
+            textAlign(CENTER);
+            text(capBdD[n], 355, 72+40*n);    // If textWidth(capBdD[]) >= 180, cambio capBdD para ponerle puntos suspensivos.
+            textAlign(LEFT);
           }
         }
       }
@@ -296,6 +334,8 @@ void draw() {
       text("Volver", 487, 225);
       if (menInd == 20) {
         text("Añadir nuevo concepto", 176, 225);
+      } else if (menInd == 60) {
+        text("Añadir nuevo capítulo", 176, 225);
       } else if (menInd == 50) {
         text(textEdit, 155, 225);
         stroke(110);
@@ -316,38 +356,71 @@ void draw() {
       }
       noStroke();  // scrollbar
       fill(250);
-      if (numConcDistintos > 6) {
-        if (scrllBarAC != 0) {
-          if (568 <= mouseX && mouseX <= 582 && 50 <= mouseY && mouseY <= 60) {
-            triangle(566, 62, 584, 62, 575, 48);
-            menE[2] = true;
+      if (menInd == 20 || menInd == 50) {
+        if (numConcDistintos > 6) {
+          if (scrllBarAC != 0) {
+            if (568 <= mouseX && mouseX <= 582 && 50 <= mouseY && mouseY <= 60) {
+              triangle(566, 62, 584, 62, 575, 48);
+              menE[2] = true;
+            } else {
+              triangle(568, 60, 582, 60, 575, 50);
+              menE[2] = false;
+            }
           } else {
-            triangle(568, 60, 582, 60, 575, 50);
-            menE[2] = false;
+            menE[2] = false; 
           }
-        } else {
-          menE[2] = false; 
-        }
-        if (!scrllBajo) {
-          if (568 <= mouseX && mouseX <= 582 && 180 <= mouseY && mouseY <= 190) {
-            triangle(566, 178, 584, 178, 575, 192);
-            menE[3] = true;
+          if (!scrllBajo) {
+            if (568 <= mouseX && mouseX <= 582 && 180 <= mouseY && mouseY <= 190) {
+              triangle(566, 178, 584, 178, 575, 192);
+              menE[3] = true;
+            } else {
+              triangle(568, 180, 582, 180, 575, 190);
+              menE[3] = false;
+            }
+          } 
+          if (numConcDistintos%2 == 0) {
+            scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2 - 1)), 70, 170);
           } else {
-            triangle(568, 180, 582, 180, 575, 190);
-            menE[3] = false;
+            scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2)), 70, 170);
           }
-        } 
-        if (numConcDistintos%2 == 0) {
-          scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2 - 1)), 70, 170);
-        } else {
-          scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numConcDistintos/2)), 70, 170);
+          if (567 <= mouseX && mouseX <= 583 && scrllBarMap-8 <= mouseY && mouseY <= scrllBarMap+8) {
+            ellipse(575, scrllBarMap, 10, 10);
+            menE[4] = true;
+          } else {
+            ellipse(575, scrllBarMap, 8, 8);
+            menE[4] = false;
+          }
         }
-        if (567 <= mouseX && mouseX <= 583 && scrllBarMap-8 <= mouseY && mouseY <= scrllBarMap+8) {
-          ellipse(575, scrllBarMap, 10, 10);
-          menE[4] = true;
-        } else {
-          ellipse(575, scrllBarMap, 8, 8);
-          menE[4] = false;
+      } else if (menInd == 60) {
+        if (numCapDistintos > 3) {
+          if (scrllBarAC != 0) {
+            if (568 <= mouseX && mouseX <= 582 && 50 <= mouseY && mouseY <= 60) {
+              triangle(566, 62, 584, 62, 575, 48);
+              menE[2] = true;
+            } else {
+              triangle(568, 60, 582, 60, 575, 50);
+              menE[2] = false;
+            }
+          } else {
+            menE[2] = false; 
+          }
+          if (!scrllBajo) {
+            if (568 <= mouseX && mouseX <= 582 && 180 <= mouseY && mouseY <= 190) {
+              triangle(566, 178, 584, 178, 575, 192);
+              menE[3] = true;
+            } else {
+              triangle(568, 180, 582, 180, 575, 190);
+              menE[3] = false;
+            }
+          } 
+          scrllBarMap = map(scrllBarAC, 0, 166-(60+40*(numCapDistintos-1)), 70, 170);
+          if (567 <= mouseX && mouseX <= 583 && scrllBarMap-8 <= mouseY && mouseY <= scrllBarMap+8) {
+            ellipse(575, scrllBarMap, 10, 10);
+            menE[4] = true;
+          } else {
+            ellipse(575, scrllBarMap, 8, 8);
+            menE[4] = false;
+          }
         }
       }
     } else if (menInd == 21) {
@@ -490,7 +563,16 @@ void mouseClicked() {
   } else if (menInd == 2) {
     if (menE[0]) { // Concepto. Abrir Menú.
       carga();
-      if (numGastos != 0 && cargaCorrecta) ConceptosPorFrecuencia();
+      if (!cargaCorrecta) {
+        // Aviso de error.
+      } else {
+        if (numGastos != 0) {
+          IndPorFrecuencia(byte(3));
+          IndPorFrecuencia(byte(7));
+        } else {
+          // No cargar los gastos existentes (no hay) (?).
+        }
+      }
       scrllBarAC = 0;
       textEdit = "";
       menInd = 20;
@@ -512,22 +594,38 @@ void mouseClicked() {
       // Fecha. Menú.
     } else if (menE[4]) {  // Tipo IVA. Descartado. Lo dejo así por no hacer ningún desplazamiento.
     } else if (menE[5]) {  // Total. Descartado.
-    } else if (menE[6]) {
-      // Capítulo. Menú.
+    } else if (menE[6]) {  // Capítulo. Menú.
+      carga();
+      if (!cargaCorrecta) {
+        // Aviso de error.
+      } else {
+        if (numGastos != 0) {
+          IndPorFrecuencia(byte(3));
+          IndPorFrecuencia(byte(7));
+        } else {
+          // No cargar los gastos existentes (no hay) (?).
+        }
+      }
+      scrllBarAC = 0;
+      textEdit = "";
+      menInd = 60;
+      menE[6] = false;
     } else if (menE[7]) { // Volver al inicio.
       menInd = 0;
       menE[7] = false;
     } else if (menE[8]) {
       // Introducir: Verifica los datos de todos los apartados y añade el gasto.
     }
-  } else if (menInd == 20 || menInd == 50) {
+  } else if (menInd == 20 || menInd == 50 || menInd == 60) {
     if (menE[0]) { // Volver al menú de añadir gasto.
       menInd = 2;
       menE[0] = false;
-    } else if (menE[1]) {  // Nuevo concepto. Mandar a editor de texto.
+    } else if (menE[1]) {
       if (menInd == 20) {
-        menInd = 50;
-      } else {  // Introducir nuevo concepto.
+        menInd = 50;      // Manda a editor de texto paa nuevo concepto.
+      } else if (menInd == 60) { 
+        menInd = 61;      // Manda a editor de texto para nuevo capítulo.  
+      } else if (menInd == 50) {  // Introducir nuevo concepto.
         ANGasto[3] = textEdit;
         ANGasto[5] = "A";
         ANGasto[7] = "";
@@ -546,14 +644,21 @@ void mouseClicked() {
       if (scrllBarAC > 0) scrllBarAC = 0;
     } else if (menE[3]) {  // ScrollBar abajo.
       scrllBarAC -= 20;
-      if (numConcDistintos%2 == 0) {
-        if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
-          scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
-          scrllBajo = true;
+      if (menInd == 20 || menInd == 50) {
+        if (numConcDistintos%2 == 0) {
+          if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
+            scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+            scrllBajo = true;
+          }
+        } else {
+          if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
+            scrllBarAC = 166-(60+40*(numConcDistintos/2));
+            scrllBajo = true;
+          }
         }
-      } else {
-        if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
-          scrllBarAC = 166-(60+40*(numConcDistintos/2));
+      } else if (menInd == 60 || menInd == 61) {
+        if (scrllBarAC < 166-(60+40*(numCapDistintos - 1))) {
+          scrllBarAC = 166-(60+40*(numCapDistintos - 1));
           scrllBajo = true;
         }
       }
@@ -653,35 +758,48 @@ void mouseClicked() {
 }
 
 void mouseWheel (MouseEvent event) {
-  if (scrllBarAC <= 0) {
+   if (scrllBarAC <= 0) {
     scrllBarAC -= 7*event.getCount();
     if (scrllBarAC > 0) scrllBarAC = 0; 
     if (event.getCount() > 0) {
-      if (numConcDistintos != 0) {
-        if (numConcDistintos > 6) {
-          if (numConcDistintos%2 == 0) {
-            if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
-              scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+      if (menInd == 20 | menInd == 50) {
+        if (numConcDistintos != 0) {
+          if (numConcDistintos > 6) {
+            if (numConcDistintos%2 == 0) {
+              if (scrllBarAC < 166-(60+40*(numConcDistintos/2 - 1))) {
+                scrllBarAC = 166-(60+40*(numConcDistintos/2 - 1));
+                scrllBajo = true;
+              }
+            } else {
+              if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
+                scrllBarAC = 166-(60+40*(numConcDistintos/2));
+                scrllBajo = true;
+              }
+            }
+          } else {
+            scrllBarAC = 0;
+          }
+        }
+      } else if (menInd == 60 || menInd == 61) {
+        if (numCapDistintos != 0) {
+          if (numCapDistintos > 3) {
+            if (scrllBarAC < 166-(60+40*(numCapDistintos - 1))) {
+              scrllBarAC = 166-(60+40*(numCapDistintos - 1));
               scrllBajo = true;
             }
           } else {
-            if (scrllBarAC < 166-(60+40*(numConcDistintos/2))) {
-              scrllBarAC = 166-(60+40*(numConcDistintos/2));
-              scrllBajo = true;
-            }
+            scrllBarAC = 0;
           }
-        } else {
-          scrllBarAC = 0;
         }
       }
-    } else {
-      scrllBajo = false;
     }
+  } else {
+    scrllBajo = false;
   }
 }
 
 void mouseDragged () {
-  if (menInd == 20) {
+  if (menInd == 20 || menInd == 50) {
     if (menE[4]) {
       if (numConcDistintos%2 == 0) {
         scrllBarAC = map(mouseY, 70, 170, 0, 166-(60+40*(numConcDistintos/2 - 1)));
@@ -701,6 +819,17 @@ void mouseDragged () {
         } else {
           scrllBajo = false;
         }
+      }
+    }
+  } else if (menInd == 60 ||menInd == 61) {
+    if (menE[4]) {
+      scrllBarAC = map(mouseY, 70, 170, 0, 166-(60+40*(numCapDistintos - 1)));
+      if (scrllBarAC > 0) scrllBarAC = 0;
+      if (scrllBarAC < 166-(60+40*(numCapDistintos - 1))) {
+        scrllBarAC = 166-(60+40*(numCapDistintos - 1));
+        scrllBajo = true;
+      } else {
+        scrllBajo = false;
       }
     }
   }
@@ -862,23 +991,23 @@ void carga() {
   if (c == 9) cargaCorrecta = true;
 }
 
-void ConceptosPorFrecuencia() {
+void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
   String[] conc = new String[numGastos];
   int[] concF = new int[numGastos];
   int n = 0;
   for (int i = 0; i < numGastos; i++) {
     if (n == 0) {
-      conc[0] = GastosBdD[0][3];
+      conc[0] = GastosBdD[0][cl];
       concF[0] = 1;
       n++;
-      for (int j = 1; j < numGastos; j++) if (GastosBdD[0][3].equals(GastosBdD[j][3])) concF[0]++;
+      for (int j = 1; j < numGastos; j++) if (GastosBdD[0][cl].equals(GastosBdD[j][cl])) concF[0]++;
     } else {
       int m = 0;
-      for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][3])) m++;
-      if (m == 0) {  // Si es un concepto que aparece por primera vez:
-        conc[n] = GastosBdD[i][3];
+      for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][cl])) m++;
+      if (m == 0) {  // Si es un concepto/capítulo que aparece por primera vez:
+        conc[n] = GastosBdD[i][cl];
         concF[n] = 1;
-        if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][3].equals(GastosBdD[j][3])) concF[n]++;
+        if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][cl].equals(GastosBdD[j][cl])) concF[n]++;
         n++;
       }
     }
@@ -895,9 +1024,17 @@ void ConceptosPorFrecuencia() {
       n++;
     }
     n--;
-    numConcDistintos = n;
+    if (cl == 3) {
+      numConcDistintos = n;
+    } else if (cl == 7) {
+      numCapDistintos = n; 
+    }
   } else {
-    numConcDistintos = 1;
+    if (cl == 3) {
+      numConcDistintos = 1;
+    } else {
+      numCapDistintos = 1; 
+    }
   }
   int permut = 0;  // Ordeno;
   int permutM = 0;
@@ -905,10 +1042,23 @@ void ConceptosPorFrecuencia() {
   for (int i = 0; i < n; i++) {
     int[] concFInv= new int[n-i];
     for (int m = 0; m < n-i; m++) concFInv[m] = concF[m];
-    concFBdD[i] = max(concFInv);
-    for (int m = 0; m < n-i; m++) if (concFInv[m] == concFBdD[i]) {
-      permut = m;
-      concBdD[i] = conc[m];
+    if (cl == 3) {
+      concFBdD[i] = max(concFInv);
+    } else if (cl == 7) {
+      capFBdD[i] = max(concFInv);
+    }
+    for (int m = 0; m < n-i; m++) {
+      if (cl == 3) {
+        if (concFInv[m] == concFBdD[i]) {
+          permut = m;
+          concBdD[i] = conc[m];
+        }
+      } else if (cl == 7) {
+        if (concFInv[m] == capFBdD[i]) {
+          permut = m;
+          capBdD[i] = conc[m];
+        }
+      }
     }
     permutM = concF[n-i-1];
     concF[n-i-1] = concF[permut];
