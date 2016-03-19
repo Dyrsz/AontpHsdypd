@@ -26,9 +26,7 @@ char letter;
 char[] ch1;
 
 /*
-  - Si le doy a volver en algún momento, falla la scrollbar. Mirar si es solo es capítulo o en concepto también.
-
-  - Menú de capítulo: Otra scrollbar y todo tal cual está el menú de añadir nuevo concepto.
+  - textedit para Capítulos (menInd == 61) y repaso toda la parte de capítulos. Debería estar terminada.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
@@ -90,7 +88,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50 || menInd == 60) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -138,7 +136,11 @@ void draw() {
         } else {
           menE[8] = false;
         }    
-        if (!ANGasto[7].equals("")) {
+        boolean b1 = false;  // Aquí tengo que buscar si el concepto nuevo no está en la base de datos. Si no está, libero el poder elegir capítulo.
+        if (!ANGasto[3].equals("")) {
+          if (!concExisteEnBdD(ANGasto[3])) b1 = true;
+        }
+        if (!ANGasto[7].equals("") && !b1) {
           fill(100, 80, 100, 70);
           if (118 <= mouseX && mouseX <= 550 && 152 <= mouseY && mouseY <= 179) rect(118, 152, 432, 27);
         } else {
@@ -208,7 +210,7 @@ void draw() {
         textFont(font1,19);
         text("->", 300, 103);
       }
-    } else if (menInd == 20 || menInd == 50 || menInd == 60) {
+    } else if (menInd == 20 || menInd == 50 || menInd == 60 ||menInd == 61) {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
@@ -268,7 +270,7 @@ void draw() {
             }
           }
         }
-      } else if (menInd == 60) {
+      } else if (menInd == 60 || menInd == 61) {
         if (numCapDistintos != 0) {
           for (int n = 0; n < numCapDistintos; n++) {
             stroke(110);
@@ -322,7 +324,7 @@ void draw() {
         menE[0] = true;
       } else {
         menE[0] = false;
-      } if (menInd == 20) if (144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232) {
+      } if (menInd == 20 || menInd == 60) if (144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232) {
         rect(144, 202, 270, 30);
         menE[1] = true;
       } else {
@@ -336,7 +338,7 @@ void draw() {
         text("Añadir nuevo concepto", 176, 225);
       } else if (menInd == 60) {
         text("Añadir nuevo capítulo", 176, 225);
-      } else if (menInd == 50) {
+      } else if (menInd == 50 || menInd == 61) {
         text(textEdit, 155, 225);
         stroke(110);
         if (millis()%1500 > 500) line(157 + textWidth(textEdit), 207, 157 + textWidth(textEdit), 227);
@@ -391,7 +393,7 @@ void draw() {
             menE[4] = false;
           }
         }
-      } else if (menInd == 60) {
+      } else if (menInd == 60 || menInd == 61) {
         if (numCapDistintos > 3) {
           if (scrllBarAC != 0) {
             if (568 <= mouseX && mouseX <= 582 && 50 <= mouseY && mouseY <= 60) {
@@ -574,6 +576,7 @@ void mouseClicked() {
         }
       }
       scrllBarAC = 0;
+      scrllBajo = false;
       textEdit = "";
       menInd = 20;
     } else if (menE[1]) {  // Clase.
@@ -607,6 +610,7 @@ void mouseClicked() {
         }
       }
       scrllBarAC = 0;
+      scrllBajo = false;
       textEdit = "";
       menInd = 60;
       menE[6] = false;
@@ -616,7 +620,7 @@ void mouseClicked() {
     } else if (menE[8]) {
       // Introducir: Verifica los datos de todos los apartados y añade el gasto.
     }
-  } else if (menInd == 20 || menInd == 50 || menInd == 60) {
+  } else if (menInd == 20 || menInd == 50 || menInd == 60 || menInd == 61) {
     if (menE[0]) { // Volver al menú de añadir gasto.
       menInd = 2;
       menE[0] = false;
@@ -635,6 +639,9 @@ void mouseClicked() {
           ANGasto[4] = "";
         }
         if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
+        menInd = 2;
+      } else if (menInd == 61) {  // Introducir nuevo capítulo.
+        ANGasto[7] = textEdit;
         menInd = 2;
       }
       menE[1] = false;
@@ -665,32 +672,45 @@ void mouseClicked() {
     } else if (menE[4]) {  // ScrollBar cuerpo. Aquí nada.
     } else {
       int nu = 0;
-      for (int n = 0; n < numConcDistintos; n++) {
-        if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
-          ANGasto[3] = concBdD[n];
-          ANGasto[5] = claseDominante(concBdD[n]);
-          ANGasto[7] = capitCon(ANGasto[3]);
-          if (ANGasto[5].equals("A")) {
-            ANGasto[6] = "21%";
-          } else if (ANGasto[5].equals("B")) {
-            ANGasto[6] = "10%";
-          } else if (ANGasto[5].equals("C")) {
-            ANGasto[6] = "4%";
-          } else if (ANGasto[5].equals("D")) {
-            ANGasto[6] = "0%";
+      if (menInd == 20 || menInd == 50) {
+        for (int n = 0; n < numConcDistintos; n++) {
+          if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
+            ANGasto[3] = concBdD[n];
+            ANGasto[5] = claseDominante(concBdD[n]);
+            ANGasto[7] = capitCon(ANGasto[3]);
+            if (ANGasto[5].equals("A")) {
+              ANGasto[6] = "21%";
+            } else if (ANGasto[5].equals("B")) {
+              ANGasto[6] = "10%";
+            } else if (ANGasto[5].equals("C")) {
+              ANGasto[6] = "4%";
+            } else if (ANGasto[5].equals("D")) {
+              ANGasto[6] = "0%";
+            }
+            if (!ANGasto[4].equals("")) {
+              ANTotal = "";
+              ANIVA = "";
+              ANGasto[4] = "";
+            }
+            menInd = 2;
+            menE[5+n] = false;
+          } else {
+            nu++; 
           }
-          if (!ANGasto[4].equals("")) {
-            ANTotal = "";
-            ANIVA = "";
-            ANGasto[4] = "";
-          }
-          menInd = 2;
-          menE[5+n] = false;
-        } else {
-          nu++; 
         }
+        if (menInd == 50) if (nu == numConcDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 20;
+      } else {
+        for (int n = 0; n < numCapDistintos; n++) {
+          if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
+            ANGasto[7] = capBdD[n];
+            menInd = 2;
+            menE[5+n] = false;
+          } else {
+            nu++; 
+          }
+        }
+        if (menInd == 61) if (nu == numCapDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 60;
       }
-      if (menInd == 50) if (nu == numConcDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 20;
     }
   } else if (menInd == 21) {
     menInd = 2;
@@ -758,9 +778,9 @@ void mouseClicked() {
 }
 
 void mouseWheel (MouseEvent event) {
-   if (scrllBarAC <= 0) {
+  if (scrllBarAC <= 0) {
     scrllBarAC -= 7*event.getCount();
-    if (scrllBarAC > 0) scrllBarAC = 0; 
+    if (scrllBarAC > 0) scrllBarAC = 0;
     if (event.getCount() > 0) {
       if (menInd == 20 | menInd == 50) {
         if (numConcDistintos != 0) {
@@ -792,9 +812,9 @@ void mouseWheel (MouseEvent event) {
           }
         }
       }
+    } else {
+      scrllBajo = false;
     }
-  } else {
-    scrllBajo = false;
   }
 }
 
