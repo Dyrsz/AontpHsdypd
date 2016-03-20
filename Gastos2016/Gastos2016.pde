@@ -1088,8 +1088,6 @@ class Gasto {
   int fM;
   int fY = 2016;
   String conc;
-  float base;
-  char sConc;
   String ID;
   /*
   float tIVA;
@@ -1097,14 +1095,11 @@ class Gasto {
   float total;
   String capit;
   */
-  Gasto(int tfD, int tfM, int tfY, String tconc, float tbase, char tsConc) {
-    fD = tfD;
-    fM = tfM;
-    fY = tfY;
+  Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc) {
+    fD = int(tfD);
+    fM = int(tfM);
+    fY = int(tfY);
     conc = tconc;
-    int tbaseI = round(tbase*100);      // La base tiene dos decimales.
-    base = tbaseI/100.0;
-    sConc = tsConc;
     // Construyo la ID:
       // Year:  
         //if (fY < 2016 || fY > 2100) Error;
@@ -1112,27 +1107,22 @@ class Gasto {
     if (ID1.length() == 1) ID1 = "0" + ID1;
       // Month:
         //if (fM < 1 || fY > 12) Error;
-    String ID2 = " ";
+    String ID2 = "";
     if (fM < 11) {
       ID2 = str(fM-1);
     } else {
       if (fM == 11) ID2 = "A";
       if (fM == 12) ID2 = "B";
     }
-      // Day:
-        //if (fM == 1 || fM == 3 || fM == 5 || fM == 7 || fM == 8 || fM == 10 || fM == 12) if (fD < 1 || fD > 31) Error;
-        //if (fM == 4 || fM == 6 || fM == 9 || fM == 11) if (fD < 1 || fD > 30) Error;
-        //if (fM == 2 && fY%4 == 0) if (fD < 1 || fD > 29) Error;
-        //if (fM == 2 && fY%4 != 0) if (fD < 1 || fD > 28) Error;
     String ID3 = str(char(fD+47));
       // Concepto, sConcepto:
     String ID4 = str(conc.charAt(0)) + str(conc.charAt(conc.length()-1));
-    String ID5 = str(sConc);
+    String ID5 = tsConc;
       // Base:
-    String ID6s1 = str(base);
+    String ID6s1 = tbase;
     String ID6s = str(ID6s1.length());
         //if(ID6s > 10) Error;
-    int ID6i = int(base);
+    int ID6i = int(tbase);
     String ID6 = ID6s + str(str(ID6i%10).charAt(0));
       // Reserva. De momento no lo toco.
     String ID7 = "0";
