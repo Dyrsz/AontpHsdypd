@@ -13,6 +13,7 @@ String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
 String[] capBdD = new String[50];     // Lo mismo, con capítulos.
 int[] capFBdD = new int[50];
+float desfCap = 0;                    // Float que uso para alargar la caja de introducir nuevo capítulo. Es un diseño que me gusta.
 float scrllBarAC = 0;
 float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
@@ -26,10 +27,11 @@ char letter;
 char[] ch1;
 
 /*
-  - textedit para Capítulos (menInd == 61) y repaso toda la parte de capítulos. Debería estar terminada.
+  - Creo que está todo el MenInd = 2 terminado. Completar lo que ocurre al instertar gasto y todas las comprobaciones.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
+  R3. Menú de fechas para que a parte de ser un menú de introducir números, pueda hacerse solo con el mouse. Me resulta innecesario porque el teclado es obligatorio para introducir la base.
 
   Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
   Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
@@ -88,7 +90,7 @@ void draw() {
       textFont(font1,21);
       text("No disponible", 250, 200);
     }
-  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 50 || menInd == 60 || menInd == 61) {
+  } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 25  || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
     rect(35, 45, 530, 140);
     rect(345, 202, 100, 30);
@@ -176,6 +178,12 @@ void draw() {
       text("Capítulo:", 45, 170);
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
+      textFont(font1,23);
+      text("/    /", 430, 102);
+      textFont(font1,17);
+      text("2016", 475, 100);
+      if (!ANGasto[1].equals("")) text(ANGasto[1], 440, 100);
+      if (!ANGasto[2].equals("")) text(ANGasto[2], 408, 100);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
       if (menInd == 2) if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
@@ -316,7 +324,7 @@ void draw() {
       fill(0);
       line(140, 196, 565, 196);
       rect(465, 202, 100, 30);
-      rect(144, 202, 270, 30);
+      rect(144 -desfCap, 202, 270+desfCap, 30);
       stroke(110);
       fill(150, 0, 150, 70);
       if (465 <= mouseX && mouseX <= 565 && 202 <= mouseY && mouseY <= 232) {
@@ -339,9 +347,9 @@ void draw() {
       } else if (menInd == 60) {
         text("Añadir nuevo capítulo", 176, 225);
       } else if (menInd == 50 || menInd == 61) {
-        text(textEdit, 155, 225);
+        text(textEdit, 155-desfCap, 225);
         stroke(110);
-        if (millis()%1500 > 500) line(157 + textWidth(textEdit), 207, 157 + textWidth(textEdit), 227);
+        if (millis()%1500 > 500) line(157 + textWidth(textEdit) - desfCap, 207, 157 + textWidth(textEdit) - desfCap, 227);
         fill(0);
         rect(420, 202, 39, 30);
         fill(150, 0, 150, 70);
@@ -435,6 +443,12 @@ void draw() {
       text("Debe añadir un concepto primero.", 155, 90);
       text("Click para continuar.", 205, 160);
     } else if (menInd == 22) {
+      noStroke();
+      fill(250);
+      textFont(font1,23);
+      text("/    /", 430, 102);
+      textFont(font1,17);
+      text("2016", 475, 100);
       stroke(110);
       fill(0);
       rect(500, 78, 50, 27);
@@ -483,6 +497,8 @@ void draw() {
       text("B", 520, 125);
       text("C", 520, 152);
       text("D", 520, 179);
+      if (!ANGasto[1].equals("")) text(ANGasto[1], 440, 100);
+      if (!ANGasto[2].equals("")) text(ANGasto[2], 408, 100);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
       if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
@@ -494,6 +510,8 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,17);
+      if (!ANGasto[1].equals("")) text(ANGasto[1], 440, 100);
+      if (!ANGasto[2].equals("")) text(ANGasto[2], 408, 100);
       if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
       if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
       if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
@@ -548,6 +566,40 @@ void draw() {
       text("IVA incluido", 160, 97);
       text("Base/3", 160, 124);
       text("IVA incluido/3", 160, 151);
+      textFont(font1,23);
+      text("/    /", 430, 102);
+      textFont(font1,17);
+      text("2016", 475, 100);
+    } else if (menInd == 25) {
+      noStroke();
+      fill(250);
+      textFont(font1,21);
+      text("Añadir gasto nuevo",105,30);
+      textFont(font1,17);
+      text("Concepto:", 45, 70);
+      text("Clase:", 445, 70);
+      text("Fecha:", 345, 100);
+      text("Base:", 45, 100);
+      text("Tipo IVA:", 45, 140);
+      text("Total:", 345, 140);
+      text("IVA:", 190, 140);
+      text("Capítulo:", 45, 170);
+      text("Volver", 370, 223);
+      text("Introducir", 480, 223);
+      textFont(font1,23);
+      text("/    /", 430, 102);
+      textFont(font1,17);
+      text("2016", 475, 100);
+      text(textEdit, 405, 100);
+      if (!ANGasto[3].equals("")) text(ANGasto[3], 140, 70);
+      if (!ANGasto[4].equals("")) text(ANGasto[4], 100, 100);
+      if (!ANGasto[5].equals("")) text(ANGasto[5], 520, 70);
+      if (!ANGasto[6].equals("")) text(ANGasto[6], 130, 140);
+      if (!ANGasto[7].equals("")) text(ANGasto[7], 140, 170);
+      if (!ANTotal.equals("")) text(ANTotal, 395, 140);
+      if (!ANIVA.equals("")) text(ANIVA, 230, 140);
+      stroke(110);
+      if (millis()%1500 > 500) line(407 + textWidth(textEdit), 82, 407 + textWidth(textEdit), 102);
     }
   }
 }
@@ -578,6 +630,7 @@ void mouseClicked() {
       scrllBarAC = 0;
       scrllBajo = false;
       textEdit = "";
+      desfCap = 0;
       menInd = 20;
     } else if (menE[1]) {  // Clase.
       if (ANGasto[3].equals("")) {  // Error.
@@ -593,8 +646,10 @@ void mouseClicked() {
         menInd = 23;
       }
       menE[2] = false;
-    } else if (menE[3]) {
-      // Fecha. Menú.
+    } else if (menE[3]) {  // Fecha. Menú.
+      menInd = 25;
+      textEdit = "";
+      menE[3] = false;
     } else if (menE[4]) {  // Tipo IVA. Descartado. Lo dejo así por no hacer ningún desplazamiento.
     } else if (menE[5]) {  // Total. Descartado.
     } else if (menE[6]) {  // Capítulo. Menú.
@@ -623,15 +678,18 @@ void mouseClicked() {
   } else if (menInd == 20 || menInd == 50 || menInd == 60 || menInd == 61) {
     if (menE[0]) { // Volver al menú de añadir gasto.
       menInd = 2;
+      desfCap = 0;
       menE[0] = false;
     } else if (menE[1]) {
       if (menInd == 20) {
         menInd = 50;      // Manda a editor de texto paa nuevo concepto.
       } else if (menInd == 60) { 
         menInd = 61;      // Manda a editor de texto para nuevo capítulo.  
+        desfCap = 0;
       } else if (menInd == 50) {  // Introducir nuevo concepto.
         ANGasto[3] = textEdit;
         ANGasto[5] = "A";
+        ANGasto[6] = "21%";
         ANGasto[7] = "";
         if (!ANGasto[4].equals("")) {
           ANTotal = "";
@@ -643,6 +701,7 @@ void mouseClicked() {
       } else if (menInd == 61) {  // Introducir nuevo capítulo.
         ANGasto[7] = textEdit;
         menInd = 2;
+        desfCap = 0;
       }
       menE[1] = false;
     } else if (menE[2]) {  // ScrollBar arriba.
@@ -705,11 +764,16 @@ void mouseClicked() {
             ANGasto[7] = capBdD[n];
             menInd = 2;
             menE[5+n] = false;
+            desfCap = 0;
           } else {
             nu++; 
           }
         }
-        if (menInd == 61) if (nu == numCapDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 60;
+        if (menInd == 61) if (nu == numCapDistintos) if (!(144 -desfCap<= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) {
+          menInd = 60;
+          textEdit = "";
+          desfCap = 0;
+        }
       }
     }
   } else if (menInd == 21) {
@@ -771,6 +835,28 @@ void mouseClicked() {
     } else {
       if (!(95 <= mouseX && mouseX <= 330 && 82 <= mouseY && mouseY <= 109)) {
         for (byte b = 0; b < 4; b++) menE[b] = false;
+        menInd = 2;
+      }
+    }
+  } else if (menInd == 25) {  // Menú de fecha. Si pincho fuera del cuadro de texto de insertar fecha, confirma todo y vuelve a menInd = 2.
+    if (!(404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109)) {  
+      if ((textEdit.length() == 6 && !textEdit.substring(5,6).equals("0")) || textEdit.length() == 7) {    //Introduce la fecha.
+        if (textEdit.length() != 7) textEdit = textEdit.substring(0,5) + "0" + textEdit.substring(5,6);
+        ANGasto[0] = "2016";                    // Año.
+        ANGasto[1] = textEdit.substring(5,7);   // Mes.
+        ANGasto[2] = textEdit.substring(0,2);   // Día.
+        int gD = int(ANGasto[2]);
+        int gM = int(ANGasto[1]);
+        int gY = int(ANGasto[0]);
+        if (gM == 0) ANGasto[1] = "01";
+        if (gM > 12) ANGasto[1] = "12";
+        gM = int(ANGasto[1]);
+        if (gD == 0) ANGasto[2] = "01";
+        gD = int(ANGasto[2]);
+        if (gM == 1 || gM == 3 || gM == 5 || gM == 7 || gM == 8 || gM == 10 || gM == 12) if (gD < 1 || gD > 31) ANGasto[2] = "31";
+        if (gM == 4 || gM == 6 || gM == 9 || gM == 11) if (gD < 1 || gD > 30) ANGasto[2] = "30";
+        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son múltiplos de 100 me los salto (No creo que este programa tenga una vida útil de más de 80 años).
+        if (gM == 2 && gY%4 != 0) if (gD < 1 || gD > 28) ANGasto[2] = "28";
         menInd = 2;
       }
     }
@@ -856,7 +942,7 @@ void mouseDragged () {
 }
 
 void keyPressed() {
-  if (menInd == 50) {
+  if (menInd == 50 || menInd == 61) {
     if ((key >= 32 && key < 250) && key != 95 && key !=168 && key != 180) {
       letter = key;
       if (tild) {
@@ -877,21 +963,34 @@ void keyPressed() {
          if (key == 117) key = 252;
          umlaut = false;
       }
-      if (textWidth(textEdit) <= 240) textEdit = textEdit + key;
+      if (menInd == 50) if (textWidth(textEdit) <= 240) textEdit = textEdit + key;
+      if (menInd == 61) if (textWidth(textEdit) <= 360) {
+        textEdit = textEdit + key;
+        if (textWidth(textEdit) >= 240) {
+          desfCap = textWidth(textEdit) - 240;
+        } else {
+          desfCap = 0; 
+        }
+      }
     }
     if (key == 168) umlaut = true;
     if (key == 180) tild = true;
     if (key == ENTER) {    // Introduce nuevo concepto.
-      ANGasto[3] = textEdit;
-      ANGasto[5] = "A";
-      ANGasto[6] = "21%";
-      ANGasto[7] = "";
-      if (!ANGasto[4].equals("")) {
-        ANTotal = "";
-        ANIVA = "";
-        ANGasto[4] = "";
+      if (menInd == 50) {
+        ANGasto[3] = textEdit;
+        ANGasto[5] = "A";
+        ANGasto[6] = "21%";
+        ANGasto[7] = "";
+        if (!ANGasto[4].equals("")) {
+          ANTotal = "";
+          ANIVA = "";
+          ANGasto[4] = "";
+        }
+        if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
+      } else if (menInd == 61) {
+        ANGasto[7] = textEdit;
+        desfCap = 0;
       }
-      if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
       menInd = 2;
     }
   } else if (menInd == 24) {
@@ -933,13 +1032,52 @@ void keyPressed() {
       }
       menInd = 2;
     }
+  } else if (menInd == 25) {
+    if (key >= 48 && key <= 57) {
+      letter = key;
+      if (textEdit.length() < 7) textEdit = textEdit + letter;
+      if (textEdit.length() == 2) textEdit = textEdit + "   ";
+    }
+    if (key == BACKSPACE) if (!textEdit.equals("")) {
+      if (textEdit.length() == 1) textEdit = "";
+      if (textEdit.length() >= 2 && textEdit.length() <= 5) textEdit = textEdit.substring(0,1);
+      if (textEdit.length() == 6) textEdit = textEdit.substring(0,5);
+      if (textEdit.length() == 7) textEdit = textEdit.substring(0,6);
+    }
+    if (key == ENTER || key == TAB) if (!textEdit.equals("")) {
+      if (textEdit.length() == 1 && !textEdit.equals("0")) textEdit = "0" + textEdit + "   ";
+      if ((textEdit.length() == 6 && !textEdit.substring(5,6).equals("0")) || textEdit.length() == 7) {    //Introduce la fecha.
+        if (textEdit.length() != 7) textEdit = textEdit.substring(0,5) + "0" + textEdit.substring(5,6);
+        ANGasto[0] = "2016";                    // Año.
+        ANGasto[1] = textEdit.substring(5,7);   // Mes.
+        ANGasto[2] = textEdit.substring(0,2);   // Día.
+        int gD = int(ANGasto[2]);
+        int gM = int(ANGasto[1]);
+        int gY = int(ANGasto[0]);
+        if (gM == 0) ANGasto[1] = "01";
+        if (gM > 12) ANGasto[1] = "12";
+        gM = int(ANGasto[1]);
+        if (gD == 0) ANGasto[2] = "01";
+        gD = int(ANGasto[2]);
+        if (gM == 1 || gM == 3 || gM == 5 || gM == 7 || gM == 8 || gM == 10 || gM == 12) if (gD < 1 || gD > 31) ANGasto[2] = "31";
+        if (gM == 4 || gM == 6 || gM == 9 || gM == 11) if (gD < 1 || gD > 30) ANGasto[2] = "30";
+        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son múltiplos de 100 me los salto (No creo que este programa tenga una vida útil de más de 80 años).
+        if (gM == 2 && gY%4 != 0) if (gD < 1 || gD > 28) ANGasto[2] = "28";
+        menInd = 2;
+      }
+    }
   }
-  if (menInd == 24 || menInd == 50) {
+  if (menInd == 24 || menInd == 50 || menInd == 61) {
     if (key == BACKSPACE) {
       if (textEdit.length() >= 1) {
         ch1 = new char[textEdit.length()-1];
         for (int i = 0; i < textEdit.length()-1; i++) ch1[i] = textEdit.charAt(i);
         textEdit = new String(ch1);
+        if (menInd == 61) if (textWidth(textEdit) >= 240) {
+          desfCap = textWidth(textEdit) - 240;
+        } else {
+          desfCap = 0;
+        }
       } else if (textEdit.equals("")) textEdit = "";
     }
   }
