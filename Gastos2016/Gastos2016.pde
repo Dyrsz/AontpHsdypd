@@ -1,6 +1,4 @@
 PFont font1;
-Gasto gasto1 = new Gasto(1,1,2016, "Material oficina", 40, 'A'); 
-Gasto gasto2 = new Gasto(1,1,2016, "Gasóleo", 33.06, 'A'); 
 boolean[] menE = new boolean[200];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
 byte menInd;
 boolean cargaCorrecta = false;
@@ -28,6 +26,8 @@ char[] ch1;
 
 /*
   - Creo que está todo el MenInd = 2 terminado. Completar lo que ocurre al instertar gasto y todas las comprobaciones.
+    - Repasar lo que sucede en la carga cuando carga una línea en blanco.
+    - Al entrar en MenInd sigue saliendo el iva y el total. Es decir, esas string no se resetean. Mirar.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
@@ -74,7 +74,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
-    //text(int('\''), 250,50);
+    text(numGastos, 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
@@ -673,7 +673,12 @@ void mouseClicked() {
       menInd = 0;
       menE[7] = false;
     } else if (menE[8]) {
-      // Introducir: Verifica los datos de todos los apartados y añade el gasto.
+      //Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc, String tCap) {
+      int mu = 0;
+      for (byte b = 0; b < 9; b++) if (!ANGasto[b].equals("")) mu++;
+      if (mu == 9) new Gasto(ANGasto[2], ANGasto[1], ANGasto[0], ANGasto[3], ANGasto[4], ANGasto[5], ANGasto[7], ANGasto[6]);
+      menInd = 0;
+      menE[8] = false;
     }
   } else if (menInd == 20 || menInd == 50 || menInd == 60 || menInd == 61) {
     if (menE[0]) { // Volver al menú de añadir gasto.
@@ -1083,6 +1088,11 @@ void keyPressed() {
   }
 }
 
+/*  
+    Realmente no necesito esta clase Gasto. Para lo único que me sirve, al final, es para calcular la ID o comprobar si es correcta. 
+    Todo este programa es muy revisable estructuralmente.
+*/
+
 class Gasto {
   int fD;
   int fM;
@@ -1095,7 +1105,7 @@ class Gasto {
   float total;
   String capit;
   */
-  Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc) {
+  Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc, String tCap, String iv) {
     fD = int(tfD);
     fM = int(tfM);
     fY = int(tfY);
@@ -1120,23 +1130,48 @@ class Gasto {
     String ID5 = tsConc;
       // Base:
     String ID6s1 = tbase;
-    String ID6s = str(ID6s1.length());
+    String ID6s = str(ID6s1.length()-1);
         //if(ID6s > 10) Error;
     int ID6i = int(tbase);
     String ID6 = ID6s + str(str(ID6i%10).charAt(0));
-      // Reserva. De momento no lo toco.
+      // Reserva.
     String ID7 = "0";
-    ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;    //  '_' Para separar IDs en una misma fila. (No es necesario)
+    ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
+    carga();
+    if (!cargaCorrecta) {
+      // Aviso de error.  Esta parte la repito a principio de mouseclicked.
+    } else {
+      for (int i = 0; i < numGastos; i++) if (GastosBdD[i][8].equals(ID)) ID7 = str(int(ID7)+1);
+      if (ID7.length() > 1) {
+         // Error. Muchos gastos iguales repetidos. 
+      } else {
+         ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
+         if (DatosBdD == null) {
+           String DatosBdD1[] = new String[1];
+           DatosBdD1[0] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
+           saveStrings("BdD.dat", DatosBdD1);
+         } else {
+           String DatosBdD1[] = new String[DatosBdD.length+1];
+           for (int i = 0; i < DatosBdD.length; i++) DatosBdD1[i] = DatosBdD[i];
+           DatosBdD1[DatosBdD.length] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
+           saveStrings("BdD.dat", DatosBdD1);
+         }
+      }
+    }
   }
 }
 
 void carga() {
   DatosBdD = loadStrings("BdD.dat");
-  if (DatosBdD != null) for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
-  numGastos = DatosBdD.length;
-  byte c = 0;
-  if (GastosBdD[0].length == 9) for (int i = 0; i < 9; i++) if (!GastosBdD[0][i].equals("")) c++;
-  if (c == 9) cargaCorrecta = true;
+  if (DatosBdD != null) {
+    for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
+    numGastos = DatosBdD.length;
+    byte c = 0;
+    if (GastosBdD[0].length == 9) for (int i = 0; i < 9; i++) if (!GastosBdD[0][i].equals("")) c++;
+    if (c == 9) cargaCorrecta = true;
+  } else {
+    numGastos = 0;
+  }
 }
 
 void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
