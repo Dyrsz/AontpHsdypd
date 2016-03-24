@@ -26,7 +26,6 @@ char[] ch1;
 
 /*
   - Creo que está todo el MenInd = 2 terminado. Completar lo que ocurre al instertar gasto y todas las comprobaciones.
-    - Repasar lo que sucede en la carga cuando carga una línea en blanco.
     - Al entrar en MenInd sigue saliendo el iva y el total. Es decir, esas string no se resetean. Mirar.
 
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
@@ -73,7 +72,7 @@ void draw() {
     fill(250);
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
-    //text(GastosBdD[0][3], 250,50);  // Aquí para mirar IDs.
+    //text(DatosBdD[0], 250,50);  // Aquí para mirar IDs.
     text(numGastos, 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
@@ -673,10 +672,9 @@ void mouseClicked() {
       menInd = 0;
       menE[7] = false;
     } else if (menE[8]) {
-      //Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc, String tCap) {
       int mu = 0;
-      for (byte b = 0; b < 9; b++) if (!ANGasto[b].equals("")) mu++;
-      if (mu == 9) new Gasto(ANGasto[2], ANGasto[1], ANGasto[0], ANGasto[3], ANGasto[4], ANGasto[5], ANGasto[7], ANGasto[6]);
+      for (byte b = 0; b < 8; b++) if (!ANGasto[b].equals("")) mu++;
+      if (mu == 8) new Gasto(ANGasto[2], ANGasto[1], ANGasto[0], ANGasto[3], ANGasto[4], ANGasto[5], ANGasto[7], ANGasto[6]);
       menInd = 0;
       menE[8] = false;
     }
@@ -1146,7 +1144,7 @@ class Gasto {
          // Error. Muchos gastos iguales repetidos. 
       } else {
          ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
-         if (DatosBdD == null) {
+         if (DatosBdD == null || DatosBdD.length == 0) {
            String DatosBdD1[] = new String[1];
            DatosBdD1[0] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
            saveStrings("BdD.dat", DatosBdD1);
@@ -1164,11 +1162,16 @@ class Gasto {
 void carga() {
   DatosBdD = loadStrings("BdD.dat");
   if (DatosBdD != null) {
-    for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
-    numGastos = DatosBdD.length;
-    byte c = 0;
-    if (GastosBdD[0].length == 9) for (int i = 0; i < 9; i++) if (!GastosBdD[0][i].equals("")) c++;
-    if (c == 9) cargaCorrecta = true;
+    if (DatosBdD.length != 0) {
+      for (int i = 0; i < DatosBdD.length; i++) GastosBdD[i] = split(DatosBdD[i], '_');
+      numGastos = DatosBdD.length;
+      byte c = 0;
+      if (GastosBdD[0].length == 9) for (int i = 0; i < 9; i++) if (!GastosBdD[0][i].equals("")) c++;
+      if (c == 9) cargaCorrecta = true;
+    } else {
+      numGastos = 0;
+      cargaCorrecta = true;
+    }
   } else {
     numGastos = 0;
   }
