@@ -25,9 +25,13 @@ char letter;
 char[] ch1;
 
 /*
-  - Creo que está todo el MenInd = 2 terminado. Completar lo que ocurre al instertar gasto y todas las comprobaciones.
-    - Al entrar en MenInd sigue saliendo el iva y el total. Es decir, esas string no se resetean. Mirar.
-
+  - He terminado el menú de ver gastos.
+    - menInd = 10: Etiqueta de "Viendo gastos", botón de volver abajo, y scrollbar mostrando todos los datos y dándolos a elegir para dar la opción de borrar.
+  - Excepciones IRPF: Creo un archivo "Excepciones IRPF.dat" que guarda los conceptos que NO aparecen en los IRPFs. El menú de excepciones da una lista con los conceptos
+  existentes categorizándolos como los que ya están en las excepciones y dando a elegir para seleccionar cuáles de los conceptos existentes deben añadirse a esa lista.
+  
+  P1. Creo que está todo el MenInd = 2 terminado. Mirar todas las comprobaciones, supongo que con la práctica.
+  
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
   R3. Menú de fechas para que a parte de ser un menú de introducir números, pueda hacerse solo con el mouse. Me resulta innecesario porque el teclado es obligatorio para introducir la base.
@@ -57,15 +61,42 @@ void setup() {
 void draw() {
   background(0);
   fill(0);
-  if (menInd == 0) {
+  if (menInd == 0 || menInd == 1) {
     stroke(110);
+    if (menInd == 1) {
+      beginShape();
+      vertex(210, 74);
+      vertex(255, 45);
+      vertex(425, 45);
+      vertex(425, 171);
+      vertex(255, 171);
+      vertex(255, 103);
+      endShape(CLOSE);
+    }
     fill(150, 0, 150, 70);
-    for (byte i = 0; i < 3; i++) {
-      if (42 <= mouseX && mouseX <= 250 && (58+40*i) <= mouseY && mouseY <= (90+40*i)) {
-        rect(42, (58+40*i), 208, 32);
-        menE[i] = true;
+    if (menInd == 0) {
+      for (byte i = 0; i < 3; i++) {
+        if (42 <= mouseX && mouseX <= 250 && (58+40*i) <= mouseY && mouseY <= (90+40*i)) {
+          rect(42, (58+40*i), 208, 32);
+          menE[i] = true;
+        } else {
+          menE[i] = false;
+        }
+      }
+    } else if (menInd == 1) {
+      for (byte i = 0; i < 4; i++) {
+        if (260 <= mouseX && mouseX <= 420 && (50+30*i) <= mouseY && mouseY <= (76+30*i)) {
+          rect(260, (50+30*i), 160, 26);
+          menE[i] = true;
+        } else {
+          menE[i] = false;
+        }
+      }
+      if (390 <= mouseX && mouseX <= 570 && 190 <= mouseY && mouseY <= 216) {
+        rect(390, 190, 180, 26);
+        menE[4] = true;
       } else {
-        menE[i] = false;
+        menE[4] = false;
       }
     }
     noStroke();
@@ -73,7 +104,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(DatosBdD[0], 250,50);  // Aquí para mirar IDs.
-    text(numGastos, 250,50);
+    //text(numGastos, 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
@@ -84,10 +115,19 @@ void draw() {
     text("Añadir gasto", 50, 120);
     text("Producir para imprimir", 50, 160);
     text("Nuevo libro de gastos", 50, 200);
-    if (42 <= mouseX && mouseX <= 250 && (58+40*3) <= mouseY && mouseY <= (90+40*3)) {
-      fill(150, 0, 150, 70);
-      textFont(font1,21);
-      text("No disponible", 250, 200);
+    if (menInd == 0) {
+      if (42 <= mouseX && mouseX <= 250 && (58+40*3) <= mouseY && mouseY <= (90+40*3)) {
+        fill(150, 0, 150, 70);
+        textFont(font1,21);
+        text("No disponible", 250, 200);
+      }
+    } else if (menInd == 1) {
+      textFont(font1,16);
+      text("Por fecha", 265, 70);
+      text("Por capítulo", 265, 100);
+      text("IRPF por fecha", 265, 130);
+      text("IRPF por capítulo", 265, 160);
+      text("Excepciones para IRPF", 395, 210);
     }
   } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 25  || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
@@ -606,12 +646,30 @@ void draw() {
 void mouseClicked() { 
   if (menInd == 0) {
     if (menE[0]) {  // Ver Gastos.
+      menInd = 1;
+      menE[0] = false;
     } else if (menE[1]) {  // Añadir gasto.
       menInd = 2;
       menE[1] = false;
       for (byte b = 0; b < 9; b++) ANGasto[b] = "";
+      ANTotal = "";
+      ANIVA = "";
     } else if (menE[2]) {  // Producir pdf (Menú para elegir).
     } else if (menE[3]) {  // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
+    }
+  } else if (menInd == 1) {  // Menú de elección de modo para ver gastos.
+    if (menE[0]) {  // Por fecha.
+      
+    } else if (menE[1]) {  // Por capítulo.
+      
+    } else if (menE[2]) {  // IRPF por fecha.
+      
+    } else if (menE[3]) {  // IRPF por capítulo.
+      
+    } else if (menE[4]) {  // Excepciones IRPF.
+      
+    } else {  // Volver.
+      menInd = 0;
     }
   } else if (menInd == 2) {
     if (menE[0]) { // Concepto. Abrir Menú.
