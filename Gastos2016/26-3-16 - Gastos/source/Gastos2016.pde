@@ -4,7 +4,6 @@ byte menInd;
 boolean cargaCorrecta = false;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
-String[][] GastosOBdD = new String[2000][9];
 int numGastos = 0;
 int numConcDistintos = 0;
 int numCapDistintos = 0;
@@ -16,7 +15,7 @@ float desfCap = 0;                    // Float que uso para alargar la caja de i
 float scrllBarAC = 0;
 float scrllBarMap = 0;
 boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
-String[] ANGasto = new String[8];
+String[] ANGasto = new String[9];
 String ANTotal = "";
 String ANIVA = "";
 String textEdit = "";                 // Variable del texto que se introduce.
@@ -27,7 +26,6 @@ char[] ch1;
 
 /*
   - He terminado el menú de ver gastos.
-    - Estoy con el algoritmo para ordenar gastos por mes.
     - menInd = 10: Etiqueta de "Viendo gastos", botón de volver abajo, y scrollbar mostrando todos los datos y dándolos a elegir para dar la opción de borrar.
   - Excepciones IRPF: Creo un archivo "Excepciones IRPF.dat" que guarda los conceptos que NO aparecen en los IRPFs. El menú de excepciones da una lista con los conceptos
   existentes categorizándolos como los que ya están en las excepciones y dando a elegir para seleccionar cuáles de los conceptos existentes deben añadirse a esa lista.
@@ -37,7 +35,6 @@ char[] ch1;
   R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
   R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
   R3. Menú de fechas para que a parte de ser un menú de introducir números, pueda hacerse solo con el mouse. Me resulta innecesario porque el teclado es obligatorio para introducir la base.
-  R4. Si introduzco un gasto cuando no existe el archivo BdD.dat, no ejecuta la carga. Cuando no carga, mostrar aviso de libro nuevo.
 
   Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
   Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
@@ -107,7 +104,7 @@ void draw() {
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
     //text(DatosBdD[0], 250,50);  // Aquí para mirar IDs.
-    text(numGastos, 250,50);
+    //text(numGastos, 250,50);
     /*
     for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
@@ -132,36 +129,6 @@ void draw() {
       text("IRPF por capítulo", 265, 160);
       text("Excepciones para IRPF", 395, 210);
     }
-  } else if (menInd == 10) { 
-    // Pongo la scrollbar
-    pushMatrix();
-    translate(0,scrllBarAC);
-    if (numGastos != 0) {
-      for (int n = 0; n < numGastos; n++) {
-        stroke(110);
-        fill(150, 0, 150, 70);
-        if (30 <= mouseX && mouseX <= 570 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
-          rect(30, 50+40*n, 540, 30);
-          menE[1+n] = true;
-        } else {
-          menE[1+n] = false;
-        }
-        noStroke();
-        fill(250);
-        textFont(font1,19);
-        text(GastosOBdD[n][0], 40, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
-      }
-    }
-    
-    
-    
-    popMatrix();
-    //
-    noStroke();
-    fill(250);
-    textFont(font1,21);
-    text("Vista de gastos: por fecha",105,30);
-    
   } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 25  || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
     rect(35, 45, 530, 140);
@@ -684,7 +651,7 @@ void mouseClicked() {
     } else if (menE[1]) {  // Añadir gasto.
       menInd = 2;
       menE[1] = false;
-      for (byte b = 0; b < 8; b++) ANGasto[b] = "";
+      for (byte b = 0; b < 9; b++) ANGasto[b] = "";
       ANTotal = "";
       ANIVA = "";
     } else if (menE[2]) {  // Producir pdf (Menú para elegir).
@@ -692,19 +659,7 @@ void mouseClicked() {
     }
   } else if (menInd == 1) {  // Menú de elección de modo para ver gastos.
     if (menE[0]) {  // Por fecha.
-      menInd = 10;
-      menE[0] = false;
-      scrllBarAC = 0;
-      carga();
-      if (!cargaCorrecta) {
-        // Aviso de error.
-      } else {
-        if (numGastos != 0) {
-          ordenoPorIntervalos(GastosBdD, 1);
-        } else {
-          // No cargar los gastos existentes (no hay) (?).
-        }
-      }
+      
     } else if (menE[1]) {  // Por capítulo.
       
     } else if (menE[2]) {  // IRPF por fecha.
@@ -1240,7 +1195,7 @@ class Gasto {
     ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
     carga();
     if (!cargaCorrecta) {
-      // Aviso de error. Llego aquí si no existe el archivo BdD.dat.
+      // Aviso de error.  Esta parte la repito a principio de mouseclicked.
     } else {
       for (int i = 0; i < numGastos; i++) if (GastosBdD[i][8].equals(ID)) ID7 = str(int(ID7)+1);
       if (ID7.length() > 1) {
@@ -1250,9 +1205,8 @@ class Gasto {
          if (DatosBdD == null || DatosBdD.length == 0) {
            String DatosBdD1[] = new String[1];
            DatosBdD1[0] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
-           saveStrings("BdD.txt", DatosBdD1);
+           saveStrings("BdD.dat", DatosBdD1);
          } else {
-           print("paso por el Else");
            String DatosBdD1[] = new String[DatosBdD.length+1];
            for (int i = 0; i < DatosBdD.length; i++) DatosBdD1[i] = DatosBdD[i];
            DatosBdD1[DatosBdD.length] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
@@ -1359,7 +1313,7 @@ void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
   }
 }
 
-String claseDominante(String con) {    // Devuelve la clase más utilizada del concepto de entrada.
+String claseDominante(String con) {
  int nu = 0;
  int mu = 0;
  int p = 0;
@@ -1390,13 +1344,13 @@ String claseDominante(String con) {    // Devuelve la clase más utilizada del c
  return concCl[p];
 }
 
-boolean concExisteEnBdD(String con) {  // Verdadero si el concepto de entrada existe en la base de datos.
+boolean concExisteEnBdD(String con) {
  boolean r = false;
  for (int i = 0; i < numGastos; i++) if (GastosBdD[i][3].equals(con)) r = true;
  return r;
 }
 
-String capitCon(String con) {  // Devuelve el capítulo del concepto de entrada de la función.
+String capitCon(String con) {
  String cap = "";
  for (int i = 0; i < numGastos; i++) {
    if (GastosBdD[i][3].equals(con)) {
@@ -1405,34 +1359,4 @@ String capitCon(String con) {  // Devuelve el capítulo del concepto de entrada 
    }
  }
  return cap;
-}
-
-void ordenoPorIntervalos(String[][] DatosT, int ind) {  // Ordeno la matriz de entrada según el índice. Opero en GastosOBdD.
-  int n = 0;
-  for (int i = 0; i < 2000; i++) if (DatosT[i][0] == null) {
-    n = i;
-    i = 2000;
-  }
-  String[][] Datos = new String[n][9];
-  for (int i = 0; i < n; i++) for (int j = 0; j < 9; j++) Datos[i][j] = DatosT[i][j];
-  if (ind == 1) {  //  Mes
-    int nm = 0;
-    int cm = 0;
-    for (int m = 1; m < 13; m++) {
-      for (int i = 0; i < n; i++) {
-        if (str(m).equals(Datos[i][ind])) nm++;
-      }
-      int ni = 0;
-      for (int j = 0; j < nm; j++) {
-        for(int i = ni; i < n; i++) {
-          if (str(m).equals(Datos[i][ind])) {
-             for (int k = 0; k < 9; k++) GastosOBdD[j+cm][k] = Datos[i][k];
-             ni = i+1;
-             i = n;
-          }
-        }
-      }
-      cm = nm;
-    }
-  }  // Compruebo si funciona hasta aquí y me pongo con los días si sí.
 }

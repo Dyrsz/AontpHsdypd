@@ -1,22 +1,37 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class Gastos2016 extends PApplet {
+
 PFont font1;
-boolean[] menE = new boolean[200];  // Para menE == 0, menE[4] sin utilizar el último. Para menE == 2, menE[9].
+boolean[] menE = new boolean[200];  // Para menE == 0, menE[4] sin utilizar el \u00faltimo. Para menE == 2, menE[9].
 byte menInd;
 boolean cargaCorrecta = false;
 String[] DatosBdD;
 String[][] GastosBdD = new String[2000][9];  // Con 2000 me sobra. Es un parche, pero no es necesario complicarlo.
-String[][] GastosOBdD = new String[2000][9];
 int numGastos = 0;
 int numConcDistintos = 0;
 int numCapDistintos = 0;
 String[] concBdD = new String[2000];  // Vector de conceptos distintos ordenados por frecuencias.
 int[] concFBdD = new int[2000];       // Vector de las frecuencias del vector anterior.
-String[] capBdD = new String[50];     // Lo mismo, con capítulos.
+String[] capBdD = new String[50];     // Lo mismo, con cap\u00edtulos.
 int[] capFBdD = new int[50];
-float desfCap = 0;                    // Float que uso para alargar la caja de introducir nuevo capítulo. Es un diseño que me gusta.
+float desfCap = 0;                    // Float que uso para alargar la caja de introducir nuevo cap\u00edtulo. Es un dise\u00f1o que me gusta.
 float scrllBarAC = 0;
 float scrllBarMap = 0;
-boolean scrllBajo = false;            // Verdadero cuando la scrollbar está debajo del todo.
-String[] ANGasto = new String[8];
+boolean scrllBajo = false;            // Verdadero cuando la scrollbar est\u00e1 debajo del todo.
+String[] ANGasto = new String[9];
 String ANTotal = "";
 String ANIVA = "";
 String textEdit = "";                 // Variable del texto que se introduce.
@@ -26,42 +41,40 @@ char letter;
 char[] ch1;
 
 /*
-  - He terminado el menú de ver gastos.
-    - Estoy con el algoritmo para ordenar gastos por mes.
-    - menInd = 10: Etiqueta de "Viendo gastos", botón de volver abajo, y scrollbar mostrando todos los datos y dándolos a elegir para dar la opción de borrar.
-  - Excepciones IRPF: Creo un archivo "Excepciones IRPF.dat" que guarda los conceptos que NO aparecen en los IRPFs. El menú de excepciones da una lista con los conceptos
-  existentes categorizándolos como los que ya están en las excepciones y dando a elegir para seleccionar cuáles de los conceptos existentes deben añadirse a esa lista.
+  - He terminado el men\u00fa de ver gastos.
+    - menInd = 10: Etiqueta de "Viendo gastos", bot\u00f3n de volver abajo, y scrollbar mostrando todos los datos y d\u00e1ndolos a elegir para dar la opci\u00f3n de borrar.
+  - Excepciones IRPF: Creo un archivo "Excepciones IRPF.dat" que guarda los conceptos que NO aparecen en los IRPFs. El men\u00fa de excepciones da una lista con los conceptos
+  existentes categoriz\u00e1ndolos como los que ya est\u00e1n en las excepciones y dando a elegir para seleccionar cu\u00e1les de los conceptos existentes deben a\u00f1adirse a esa lista.
   
-  P1. Creo que está todo el MenInd = 2 terminado. Mirar todas las comprobaciones, supongo que con la práctica.
+  P1. Creo que est\u00e1 todo el MenInd = 2 terminado. Mirar todas las comprobaciones, supongo que con la pr\u00e1ctica.
   
-  R1. Poner la excepción de los conceptos que se muestran seguín textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo más cómodo).
-  R2. Si hay un carácter de diferencia con el resto de conceptos (o capítulos), siendo un concepto nuevo, da la opción de: ¿Quiere decir...? Supongo. Tengo que pensarlo.
-  R3. Menú de fechas para que a parte de ser un menú de introducir números, pueda hacerse solo con el mouse. Me resulta innecesario porque el teclado es obligatorio para introducir la base.
-  R4. Si introduzco un gasto cuando no existe el archivo BdD.dat, no ejecuta la carga. Cuando no carga, mostrar aviso de libro nuevo.
+  R1. Poner la excepci\u00f3n de los conceptos que se muestran segu\u00edn textWidth. (Esto lo dejo para cuando pueda introducir conceptos, para dejarlo m\u00e1s c\u00f3modo).
+  R2. Si hay un car\u00e1cter de diferencia con el resto de conceptos (o cap\u00edtulos), siendo un concepto nuevo, da la opci\u00f3n de: \u00bfQuiere decir...? Supongo. Tengo que pensarlo.
+  R3. Men\u00fa de fechas para que a parte de ser un men\u00fa de introducir n\u00fameros, pueda hacerse solo con el mouse. Me resulta innecesario porque el teclado es obligatorio para introducir la base.
 
-  Extra1. Puedo hacer una función para los menús en draw. Se sirve de la variable índice (menInd).
-  Extra2. Puedo hacer una función para los botones. Rect, texto, y variable de salida si están activos.
-  Extra3. Puedo hacer una función para las scrollbars. Esta es más complicada: Una que marque la máscara y tape lo de fuera, luego el contenido, y los tres botones y los mapeos.
-  Extra4. Puede que tuviera que hacer una función para extraer y ordenar por fecuencias más abstracta.
+  Extra1. Puedo hacer una funci\u00f3n para los men\u00fas en draw. Se sirve de la variable \u00edndice (menInd).
+  Extra2. Puedo hacer una funci\u00f3n para los botones. Rect, texto, y variable de salida si est\u00e1n activos.
+  Extra3. Puedo hacer una funci\u00f3n para las scrollbars. Esta es m\u00e1s complicada: Una que marque la m\u00e1scara y tape lo de fuera, luego el contenido, y los tres botones y los mapeos.
+  Extra4. Puede que tuviera que hacer una funci\u00f3n para extraer y ordenar por fecuencias m\u00e1s abstracta.
 */
 
-void setup() {
-  size(600,250);
+public void setup() {
+  
   font1 = createFont("Arial",16,true);
   carga();
   if (!cargaCorrecta) {
     // Aviso de error.  Esta parte la repito a principio de mouseclicked.
   } else {
     if (numGastos != 0) {
-      IndPorFrecuencia(byte(3));
-      IndPorFrecuencia(byte(7));
+      IndPorFrecuencia(PApplet.parseByte(3));
+      IndPorFrecuencia(PApplet.parseByte(7));
     } else {
       // No cargar los gastos existentes (no hay) (?).
     }
   }
 }
 
-void draw() {
+public void draw() {
   background(0);
   fill(0);
   if (menInd == 0 || menInd == 1) {
@@ -106,16 +119,16 @@ void draw() {
     fill(250);
     textFont(font1,21);
     text("Asistente de Libro de gastos",155,30);
-    //text(DatosBdD[0], 250,50);  // Aquí para mirar IDs.
-    text(numGastos, 250,50);
+    //text(DatosBdD[0], 250,50);  // Aqu\u00ed para mirar IDs.
+    //text(numGastos, 250,50);
     /*
-    for (int n = 0; n < numConcDistintos; n++) {    // Aquí para mirar el vector de los conceptos ordenados.
+    for (int n = 0; n < numConcDistintos; n++) {    // Aqu\u00ed para mirar el vector de los conceptos ordenados.
       text(concBdD[n] + "; " + concFBdD[n], 250,50+25*n);
     }
     */
     textFont(font1,18);
     text("Ver lista de gastos", 50, 80);
-    text("Añadir gasto", 50, 120);
+    text("A\u00f1adir gasto", 50, 120);
     text("Producir para imprimir", 50, 160);
     text("Nuevo libro de gastos", 50, 200);
     if (menInd == 0) {
@@ -127,41 +140,11 @@ void draw() {
     } else if (menInd == 1) {
       textFont(font1,16);
       text("Por fecha", 265, 70);
-      text("Por capítulo", 265, 100);
+      text("Por cap\u00edtulo", 265, 100);
       text("IRPF por fecha", 265, 130);
-      text("IRPF por capítulo", 265, 160);
+      text("IRPF por cap\u00edtulo", 265, 160);
       text("Excepciones para IRPF", 395, 210);
     }
-  } else if (menInd == 10) { 
-    // Pongo la scrollbar
-    pushMatrix();
-    translate(0,scrllBarAC);
-    if (numGastos != 0) {
-      for (int n = 0; n < numGastos; n++) {
-        stroke(110);
-        fill(150, 0, 150, 70);
-        if (30 <= mouseX && mouseX <= 570 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
-          rect(30, 50+40*n, 540, 30);
-          menE[1+n] = true;
-        } else {
-          menE[1+n] = false;
-        }
-        noStroke();
-        fill(250);
-        textFont(font1,19);
-        text(GastosOBdD[n][0], 40, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
-      }
-    }
-    
-    
-    
-    popMatrix();
-    //
-    noStroke();
-    fill(250);
-    textFont(font1,21);
-    text("Vista de gastos: por fecha",105,30);
-    
   } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 25  || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
     rect(35, 45, 530, 140);
@@ -171,7 +154,7 @@ void draw() {
     noStroke();
     fill(250);
     textFont(font1,21);
-    text("Añadir gasto nuevo",105,30);
+    text("A\u00f1adir gasto nuevo",105,30);
     textFont(font1,17);
     text("Volver", 370, 223);
     text("Introducir", 480, 223);
@@ -210,7 +193,7 @@ void draw() {
         } else {
           menE[8] = false;
         }    
-        boolean b1 = false;  // Aquí tengo que buscar si el concepto nuevo no está en la base de datos. Si no está, libero el poder elegir capítulo.
+        boolean b1 = false;  // Aqu\u00ed tengo que buscar si el concepto nuevo no est\u00e1 en la base de datos. Si no est\u00e1, libero el poder elegir cap\u00edtulo.
         if (!ANGasto[3].equals("")) {
           if (!concExisteEnBdD(ANGasto[3])) b1 = true;
         }
@@ -238,7 +221,7 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,21);
-      text("Añadir gasto nuevo",105,30);
+      text("A\u00f1adir gasto nuevo",105,30);
       textFont(font1,17);
       text("Concepto:", 45, 70);
       text("Clase:", 445, 70);
@@ -247,7 +230,7 @@ void draw() {
       text("Tipo IVA:", 45, 140);
       text("IVA:", 190, 140);
       text("Total:", 345, 140);
-      text("Capítulo:", 45, 170);
+      text("Cap\u00edtulo:", 45, 170);
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       textFont(font1,23);
@@ -294,7 +277,7 @@ void draw() {
       stroke(110);
       fill(0);
       rect(135, 40, 440, 200);
-      pushMatrix();  // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo máscara.
+      pushMatrix();  // Esto va dentro de una scrollbar. Tengo que redibujo para hacer algo tipo m\u00e1scara.
       translate(0,scrllBarAC);
       if (menInd == 20 || menInd == 50) {
         if (numConcDistintos != 0) {
@@ -386,12 +369,12 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,21);
-      text("Añadir gasto nuevo",105,30);
+      text("A\u00f1adir gasto nuevo",105,30);
       textFont(font1,17);
       text("Concepto:", 45, 70);
       text("Base:", 45, 100);
       text("Tipo IVA:", 45, 140);
-      text("Capítulo:", 45, 170);
+      text("Cap\u00edtulo:", 45, 170);
       stroke(110);
       fill(0);
       line(140, 196, 565, 196);
@@ -415,9 +398,9 @@ void draw() {
       textFont(font1,19);
       text("Volver", 487, 225);
       if (menInd == 20) {
-        text("Añadir nuevo concepto", 176, 225);
+        text("A\u00f1adir nuevo concepto", 176, 225);
       } else if (menInd == 60) {
-        text("Añadir nuevo capítulo", 176, 225);
+        text("A\u00f1adir nuevo cap\u00edtulo", 176, 225);
       } else if (menInd == 50 || menInd == 61) {
         text(textEdit, 155-desfCap, 225);
         stroke(110);
@@ -512,7 +495,7 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,19);
-      text("Debe añadir un concepto primero.", 155, 90);
+      text("Debe a\u00f1adir un concepto primero.", 155, 90);
       text("Click para continuar.", 205, 160);
     } else if (menInd == 22) {
       noStroke();
@@ -553,7 +536,7 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,21);
-      text("Añadir gasto nuevo",105,30);
+      text("A\u00f1adir gasto nuevo",105,30);
       textFont(font1,17);
       text("Concepto:", 45, 70);
       text("Clase:", 445, 70);
@@ -562,7 +545,7 @@ void draw() {
       text("Tipo IVA:", 45, 140);
       text("IVA:", 190, 140);
       text("Total:", 345, 140);
-      text("Capítulo:", 45, 170);
+      text("Cap\u00edtulo:", 45, 170);
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       text("A", 520, 98);
@@ -623,7 +606,7 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,21);
-      text("Añadir gasto nuevo",105,30);
+      text("A\u00f1adir gasto nuevo",105,30);
       textFont(font1,17);
       text("Concepto:", 45, 70);
       text("Clase:", 445, 70);
@@ -631,7 +614,7 @@ void draw() {
       text("Base:", 45, 100);
       text("Tipo IVA:", 45, 140);
       text("Total:", 345, 140);
-      text("Capítulo:", 45, 170);
+      text("Cap\u00edtulo:", 45, 170);
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       text("Base", 160, 70);
@@ -646,7 +629,7 @@ void draw() {
       noStroke();
       fill(250);
       textFont(font1,21);
-      text("Añadir gasto nuevo",105,30);
+      text("A\u00f1adir gasto nuevo",105,30);
       textFont(font1,17);
       text("Concepto:", 45, 70);
       text("Clase:", 445, 70);
@@ -655,7 +638,7 @@ void draw() {
       text("Tipo IVA:", 45, 140);
       text("Total:", 345, 140);
       text("IVA:", 190, 140);
-      text("Capítulo:", 45, 170);
+      text("Cap\u00edtulo:", 45, 170);
       text("Volver", 370, 223);
       text("Introducir", 480, 223);
       textFont(font1,23);
@@ -676,40 +659,28 @@ void draw() {
   }
 }
 
-void mouseClicked() { 
+public void mouseClicked() { 
   if (menInd == 0) {
     if (menE[0]) {  // Ver Gastos.
       menInd = 1;
       menE[0] = false;
-    } else if (menE[1]) {  // Añadir gasto.
+    } else if (menE[1]) {  // A\u00f1adir gasto.
       menInd = 2;
       menE[1] = false;
-      for (byte b = 0; b < 8; b++) ANGasto[b] = "";
+      for (byte b = 0; b < 9; b++) ANGasto[b] = "";
       ANTotal = "";
       ANIVA = "";
-    } else if (menE[2]) {  // Producir pdf (Menú para elegir).
-    } else if (menE[3]) {  // Nuevo libro de gastos (Otro menú). Esta parte la dejo para el final.
+    } else if (menE[2]) {  // Producir pdf (Men\u00fa para elegir).
+    } else if (menE[3]) {  // Nuevo libro de gastos (Otro men\u00fa). Esta parte la dejo para el final.
     }
-  } else if (menInd == 1) {  // Menú de elección de modo para ver gastos.
+  } else if (menInd == 1) {  // Men\u00fa de elecci\u00f3n de modo para ver gastos.
     if (menE[0]) {  // Por fecha.
-      menInd = 10;
-      menE[0] = false;
-      scrllBarAC = 0;
-      carga();
-      if (!cargaCorrecta) {
-        // Aviso de error.
-      } else {
-        if (numGastos != 0) {
-          ordenoPorIntervalos(GastosBdD, 1);
-        } else {
-          // No cargar los gastos existentes (no hay) (?).
-        }
-      }
-    } else if (menE[1]) {  // Por capítulo.
+      
+    } else if (menE[1]) {  // Por cap\u00edtulo.
       
     } else if (menE[2]) {  // IRPF por fecha.
       
-    } else if (menE[3]) {  // IRPF por capítulo.
+    } else if (menE[3]) {  // IRPF por cap\u00edtulo.
       
     } else if (menE[4]) {  // Excepciones IRPF.
       
@@ -717,14 +688,14 @@ void mouseClicked() {
       menInd = 0;
     }
   } else if (menInd == 2) {
-    if (menE[0]) { // Concepto. Abrir Menú.
+    if (menE[0]) { // Concepto. Abrir Men\u00fa.
       carga();
       if (!cargaCorrecta) {
         // Aviso de error.
       } else {
         if (numGastos != 0) {
-          IndPorFrecuencia(byte(3));
-          IndPorFrecuencia(byte(7));
+          IndPorFrecuencia(PApplet.parseByte(3));
+          IndPorFrecuencia(PApplet.parseByte(7));
         } else {
           // No cargar los gastos existentes (no hay) (?).
         }
@@ -737,31 +708,31 @@ void mouseClicked() {
     } else if (menE[1]) {  // Clase.
       if (ANGasto[3].equals("")) {  // Error.
         menInd = 21;
-      } else {  // Clase del concepto. Otro menú, también. 
+      } else {  // Clase del concepto. Otro men\u00fa, tambi\u00e9n. 
         menInd = 22;
       }
       menE[1] = false;
     } else if (menE[2]) {  // Base.
       if (ANGasto[3].equals("")) {  // Error.
         menInd = 21;
-      } else {        // Abre menú y termina en editor.
+      } else {        // Abre men\u00fa y termina en editor.
         menInd = 23;
       }
       menE[2] = false;
-    } else if (menE[3]) {  // Fecha. Menú.
+    } else if (menE[3]) {  // Fecha. Men\u00fa.
       menInd = 25;
       textEdit = "";
       menE[3] = false;
-    } else if (menE[4]) {  // Tipo IVA. Descartado. Lo dejo así por no hacer ningún desplazamiento.
+    } else if (menE[4]) {  // Tipo IVA. Descartado. Lo dejo as\u00ed por no hacer ning\u00fan desplazamiento.
     } else if (menE[5]) {  // Total. Descartado.
-    } else if (menE[6]) {  // Capítulo. Menú.
+    } else if (menE[6]) {  // Cap\u00edtulo. Men\u00fa.
       carga();
       if (!cargaCorrecta) {
         // Aviso de error.
       } else {
         if (numGastos != 0) {
-          IndPorFrecuencia(byte(3));
-          IndPorFrecuencia(byte(7));
+          IndPorFrecuencia(PApplet.parseByte(3));
+          IndPorFrecuencia(PApplet.parseByte(7));
         } else {
           // No cargar los gastos existentes (no hay) (?).
         }
@@ -782,7 +753,7 @@ void mouseClicked() {
       menE[8] = false;
     }
   } else if (menInd == 20 || menInd == 50 || menInd == 60 || menInd == 61) {
-    if (menE[0]) { // Volver al menú de añadir gasto.
+    if (menE[0]) { // Volver al men\u00fa de a\u00f1adir gasto.
       menInd = 2;
       desfCap = 0;
       menE[0] = false;
@@ -790,7 +761,7 @@ void mouseClicked() {
       if (menInd == 20) {
         menInd = 50;      // Manda a editor de texto paa nuevo concepto.
       } else if (menInd == 60) { 
-        menInd = 61;      // Manda a editor de texto para nuevo capítulo.  
+        menInd = 61;      // Manda a editor de texto para nuevo cap\u00edtulo.  
         desfCap = 0;
       } else if (menInd == 50) {  // Introducir nuevo concepto.
         ANGasto[3] = textEdit;
@@ -804,7 +775,7 @@ void mouseClicked() {
         }
         if (concExisteEnBdD(ANGasto[3])) ANGasto[7] = capitCon(ANGasto[3]);
         menInd = 2;
-      } else if (menInd == 61) {  // Introducir nuevo capítulo.
+      } else if (menInd == 61) {  // Introducir nuevo cap\u00edtulo.
         ANGasto[7] = textEdit;
         menInd = 2;
         desfCap = 0;
@@ -834,12 +805,12 @@ void mouseClicked() {
           scrllBajo = true;
         }
       }
-    } else if (menE[4]) {  // ScrollBar cuerpo. Aquí nada.
+    } else if (menE[4]) {  // ScrollBar cuerpo. Aqu\u00ed nada.
     } else {
       int nu = 0;
       if (menInd == 20 || menInd == 50) {
         for (int n = 0; n < numConcDistintos; n++) {
-          if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
+          if (menE[5+n]) {  // Conceptos n\u00famero n en n+5. Aqu\u00ed tengo que poner un bucle for.
             ANGasto[3] = concBdD[n];
             ANGasto[5] = claseDominante(concBdD[n]);
             ANGasto[7] = capitCon(ANGasto[3]);
@@ -866,7 +837,7 @@ void mouseClicked() {
         if (menInd == 50) if (nu == numConcDistintos) if (!(144 <= mouseX && mouseX <= 414 && 202 <= mouseY && mouseY <= 232)) menInd = 20;
       } else {
         for (int n = 0; n < numCapDistintos; n++) {
-          if (menE[5+n]) {  // Conceptos número n en n+5. Aquí tengo que poner un bucle for.
+          if (menE[5+n]) {  // Conceptos n\u00famero n en n+5. Aqu\u00ed tengo que poner un bucle for.
             ANGasto[7] = capBdD[n];
             menInd = 2;
             menE[5+n] = false;
@@ -904,7 +875,7 @@ void mouseClicked() {
       ANGasto[4] = "";
     }
     menInd = 2;
-  } else if (menInd == 23) {  // Menú para elegir el tipo de base a insertar.
+  } else if (menInd == 23) {  // Men\u00fa para elegir el tipo de base a insertar.
     byte c = 0;
     for (byte b = 0; b < 4; b++) if (!menE[b]) c++;
     if (c == 4) {
@@ -913,15 +884,15 @@ void mouseClicked() {
       textEdit = "";
       menInd = 24;
     }
-  } else if (menInd == 24) {  // Menú de insertar base.
+  } else if (menInd == 24) {  // Men\u00fa de insertar base.
     if (menE[4]) {        // Introduzco los datos.
       if (textEdit.equals("")) {
         ANTotal = "";
         ANIVA = "";
         ANGasto[4] = "";
       } else {
-        float ba = float(textEdit);
-        float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
+        float ba = PApplet.parseFloat(textEdit);
+        float iv = PApplet.parseFloat(ANGasto[6].substring(0,ANGasto[6].length()-1));
         iv = iv/100f;
         if (menE[0]) {          // Base.
         } else if (menE[1]) {   // IVA incluido.
@@ -944,24 +915,24 @@ void mouseClicked() {
         menInd = 2;
       }
     }
-  } else if (menInd == 25) {  // Menú de fecha. Si pincho fuera del cuadro de texto de insertar fecha, confirma todo y vuelve a menInd = 2.
+  } else if (menInd == 25) {  // Men\u00fa de fecha. Si pincho fuera del cuadro de texto de insertar fecha, confirma todo y vuelve a menInd = 2.
     if (!(404 <= mouseX && mouseX <= 550 && 82 <= mouseY && mouseY <= 109)) {  
       if ((textEdit.length() == 6 && !textEdit.substring(5,6).equals("0")) || textEdit.length() == 7) {    //Introduce la fecha.
         if (textEdit.length() != 7) textEdit = textEdit.substring(0,5) + "0" + textEdit.substring(5,6);
-        ANGasto[0] = "2016";                    // Año.
+        ANGasto[0] = "2016";                    // A\u00f1o.
         ANGasto[1] = textEdit.substring(5,7);   // Mes.
-        ANGasto[2] = textEdit.substring(0,2);   // Día.
-        int gD = int(ANGasto[2]);
-        int gM = int(ANGasto[1]);
-        int gY = int(ANGasto[0]);
+        ANGasto[2] = textEdit.substring(0,2);   // D\u00eda.
+        int gD = PApplet.parseInt(ANGasto[2]);
+        int gM = PApplet.parseInt(ANGasto[1]);
+        int gY = PApplet.parseInt(ANGasto[0]);
         if (gM == 0) ANGasto[1] = "01";
         if (gM > 12) ANGasto[1] = "12";
-        gM = int(ANGasto[1]);
+        gM = PApplet.parseInt(ANGasto[1]);
         if (gD == 0) ANGasto[2] = "01";
-        gD = int(ANGasto[2]);
+        gD = PApplet.parseInt(ANGasto[2]);
         if (gM == 1 || gM == 3 || gM == 5 || gM == 7 || gM == 8 || gM == 10 || gM == 12) if (gD < 1 || gD > 31) ANGasto[2] = "31";
         if (gM == 4 || gM == 6 || gM == 9 || gM == 11) if (gD < 1 || gD > 30) ANGasto[2] = "30";
-        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son múltiplos de 100 me los salto (No creo que este programa tenga una vida útil de más de 80 años).
+        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son m\u00faltiplos de 100 me los salto (No creo que este programa tenga una vida \u00fatil de m\u00e1s de 80 a\u00f1os).
         if (gM == 2 && gY%4 != 0) if (gD < 1 || gD > 28) ANGasto[2] = "28";
         menInd = 2;
       }
@@ -969,7 +940,7 @@ void mouseClicked() {
   }
 }
 
-void mouseWheel (MouseEvent event) {
+public void mouseWheel (MouseEvent event) {
   if (scrllBarAC <= 0) {
     scrllBarAC -= 7*event.getCount();
     if (scrllBarAC > 0) scrllBarAC = 0;
@@ -1010,7 +981,7 @@ void mouseWheel (MouseEvent event) {
   }
 }
 
-void mouseDragged () {
+public void mouseDragged () {
   if (menInd == 20 || menInd == 50) {
     if (menE[4]) {
       if (numConcDistintos%2 == 0) {
@@ -1047,7 +1018,7 @@ void mouseDragged () {
   }
 }
 
-void keyPressed() {
+public void keyPressed() {
   if (menInd == 50 || menInd == 61) {
     if ((key >= 32 && key < 250) && key != 95 && key !=168 && key != 180) {
       letter = key;
@@ -1119,8 +1090,8 @@ void keyPressed() {
         ANIVA = "";
         ANGasto[4] = "";
       } else {
-        float ba = float(textEdit);
-        float iv = float(ANGasto[6].substring(0,ANGasto[6].length()-1));
+        float ba = PApplet.parseFloat(textEdit);
+        float iv = PApplet.parseFloat(ANGasto[6].substring(0,ANGasto[6].length()-1));
         iv = iv/100f;
         if (menE[0]) {          // Base.
         } else if (menE[1]) {   // IVA incluido.
@@ -1154,20 +1125,20 @@ void keyPressed() {
       if (textEdit.length() == 1 && !textEdit.equals("0")) textEdit = "0" + textEdit + "   ";
       if ((textEdit.length() == 6 && !textEdit.substring(5,6).equals("0")) || textEdit.length() == 7) {    //Introduce la fecha.
         if (textEdit.length() != 7) textEdit = textEdit.substring(0,5) + "0" + textEdit.substring(5,6);
-        ANGasto[0] = "2016";                    // Año.
+        ANGasto[0] = "2016";                    // A\u00f1o.
         ANGasto[1] = textEdit.substring(5,7);   // Mes.
-        ANGasto[2] = textEdit.substring(0,2);   // Día.
-        int gD = int(ANGasto[2]);
-        int gM = int(ANGasto[1]);
-        int gY = int(ANGasto[0]);
+        ANGasto[2] = textEdit.substring(0,2);   // D\u00eda.
+        int gD = PApplet.parseInt(ANGasto[2]);
+        int gM = PApplet.parseInt(ANGasto[1]);
+        int gY = PApplet.parseInt(ANGasto[0]);
         if (gM == 0) ANGasto[1] = "01";
         if (gM > 12) ANGasto[1] = "12";
-        gM = int(ANGasto[1]);
+        gM = PApplet.parseInt(ANGasto[1]);
         if (gD == 0) ANGasto[2] = "01";
-        gD = int(ANGasto[2]);
+        gD = PApplet.parseInt(ANGasto[2]);
         if (gM == 1 || gM == 3 || gM == 5 || gM == 7 || gM == 8 || gM == 10 || gM == 12) if (gD < 1 || gD > 31) ANGasto[2] = "31";
         if (gM == 4 || gM == 6 || gM == 9 || gM == 11) if (gD < 1 || gD > 30) ANGasto[2] = "30";
-        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son múltiplos de 100 me los salto (No creo que este programa tenga una vida útil de más de 80 años).
+        if (gM == 2 && gY%4 == 0) if (gD < 1 || gD > 29) ANGasto[2] = "29";  // Los bisiestos que no son m\u00faltiplos de 100 me los salto (No creo que este programa tenga una vida \u00fatil de m\u00e1s de 80 a\u00f1os).
         if (gM == 2 && gY%4 != 0) if (gD < 1 || gD > 28) ANGasto[2] = "28";
         menInd = 2;
       }
@@ -1190,7 +1161,7 @@ void keyPressed() {
 }
 
 /*  
-    Realmente no necesito esta clase Gasto. Para lo único que me sirve, al final, es para calcular la ID o comprobar si es correcta. 
+    Realmente no necesito esta clase Gasto. Para lo \u00fanico que me sirve, al final, es para calcular la ID o comprobar si es correcta. 
     Todo este programa es muy revisable estructuralmente.
 */
 
@@ -1207,9 +1178,9 @@ class Gasto {
   String capit;
   */
   Gasto(String tfD, String tfM, String tfY, String tconc, String tbase, String tsConc, String tCap, String iv) {
-    fD = int(tfD);
-    fM = int(tfM);
-    fY = int(tfY);
+    fD = PApplet.parseInt(tfD);
+    fM = PApplet.parseInt(tfM);
+    fY = PApplet.parseInt(tfY);
     conc = tconc;
     // Construyo la ID:
       // Year:  
@@ -1225,7 +1196,7 @@ class Gasto {
       if (fM == 11) ID2 = "A";
       if (fM == 12) ID2 = "B";
     }
-    String ID3 = str(char(fD+47));
+    String ID3 = str(PApplet.parseChar(fD+47));
       // Concepto, sConcepto:
     String ID4 = str(conc.charAt(0)) + str(conc.charAt(conc.length()-1));
     String ID5 = tsConc;
@@ -1233,16 +1204,16 @@ class Gasto {
     String ID6s1 = tbase;
     String ID6s = str(ID6s1.length()-1);
         //if(ID6s > 10) Error;
-    int ID6i = int(tbase);
+    int ID6i = PApplet.parseInt(tbase);
     String ID6 = ID6s + str(str(ID6i%10).charAt(0));
       // Reserva.
     String ID7 = "0";
     ID = ID1 + ID2 + ID3 + ID4 + ID5 + ID6 + ID7;
     carga();
     if (!cargaCorrecta) {
-      // Aviso de error. Llego aquí si no existe el archivo BdD.dat.
+      // Aviso de error.  Esta parte la repito a principio de mouseclicked.
     } else {
-      for (int i = 0; i < numGastos; i++) if (GastosBdD[i][8].equals(ID)) ID7 = str(int(ID7)+1);
+      for (int i = 0; i < numGastos; i++) if (GastosBdD[i][8].equals(ID)) ID7 = str(PApplet.parseInt(ID7)+1);
       if (ID7.length() > 1) {
          // Error. Muchos gastos iguales repetidos. 
       } else {
@@ -1250,9 +1221,8 @@ class Gasto {
          if (DatosBdD == null || DatosBdD.length == 0) {
            String DatosBdD1[] = new String[1];
            DatosBdD1[0] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
-           saveStrings("BdD.txt", DatosBdD1);
+           saveStrings("BdD.dat", DatosBdD1);
          } else {
-           print("paso por el Else");
            String DatosBdD1[] = new String[DatosBdD.length+1];
            for (int i = 0; i < DatosBdD.length; i++) DatosBdD1[i] = DatosBdD[i];
            DatosBdD1[DatosBdD.length] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
@@ -1263,7 +1233,7 @@ class Gasto {
   }
 }
 
-void carga() {
+public void carga() {
   DatosBdD = loadStrings("BdD.dat");
   if (DatosBdD != null) {
     if (DatosBdD.length != 0) {
@@ -1281,7 +1251,7 @@ void carga() {
   }
 }
 
-void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
+public void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 cap\u00edtulo.
   String[] conc = new String[numGastos];
   int[] concF = new int[numGastos];
   int n = 0;
@@ -1294,7 +1264,7 @@ void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
     } else {
       int m = 0;
       for (int k = 0; k < n; k++) if (conc[k].equals(GastosBdD[i][cl])) m++;
-      if (m == 0) {  // Si es un concepto/capítulo que aparece por primera vez:
+      if (m == 0) {  // Si es un concepto/cap\u00edtulo que aparece por primera vez:
         conc[n] = GastosBdD[i][cl];
         concF[n] = 1;
         if (i != numGastos-1) for (int j = i+1; j < numGastos; j++) if (GastosBdD[i][cl].equals(GastosBdD[j][cl])) concF[n]++;
@@ -1359,7 +1329,7 @@ void IndPorFrecuencia(byte cl) {  // cl = 3 concepto; cl = 7 capítulo.
   }
 }
 
-String claseDominante(String con) {    // Devuelve la clase más utilizada del concepto de entrada.
+public String claseDominante(String con) {
  int nu = 0;
  int mu = 0;
  int p = 0;
@@ -1390,13 +1360,13 @@ String claseDominante(String con) {    // Devuelve la clase más utilizada del c
  return concCl[p];
 }
 
-boolean concExisteEnBdD(String con) {  // Verdadero si el concepto de entrada existe en la base de datos.
+public boolean concExisteEnBdD(String con) {
  boolean r = false;
  for (int i = 0; i < numGastos; i++) if (GastosBdD[i][3].equals(con)) r = true;
  return r;
 }
 
-String capitCon(String con) {  // Devuelve el capítulo del concepto de entrada de la función.
+public String capitCon(String con) {
  String cap = "";
  for (int i = 0; i < numGastos; i++) {
    if (GastosBdD[i][3].equals(con)) {
@@ -1406,33 +1376,13 @@ String capitCon(String con) {  // Devuelve el capítulo del concepto de entrada 
  }
  return cap;
 }
-
-void ordenoPorIntervalos(String[][] DatosT, int ind) {  // Ordeno la matriz de entrada según el índice. Opero en GastosOBdD.
-  int n = 0;
-  for (int i = 0; i < 2000; i++) if (DatosT[i][0] == null) {
-    n = i;
-    i = 2000;
-  }
-  String[][] Datos = new String[n][9];
-  for (int i = 0; i < n; i++) for (int j = 0; j < 9; j++) Datos[i][j] = DatosT[i][j];
-  if (ind == 1) {  //  Mes
-    int nm = 0;
-    int cm = 0;
-    for (int m = 1; m < 13; m++) {
-      for (int i = 0; i < n; i++) {
-        if (str(m).equals(Datos[i][ind])) nm++;
-      }
-      int ni = 0;
-      for (int j = 0; j < nm; j++) {
-        for(int i = ni; i < n; i++) {
-          if (str(m).equals(Datos[i][ind])) {
-             for (int k = 0; k < 9; k++) GastosOBdD[j+cm][k] = Datos[i][k];
-             ni = i+1;
-             i = n;
-          }
-        }
-      }
-      cm = nm;
+  public void settings() {  size(600,250); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "Gastos2016" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
     }
-  }  // Compruebo si funciona hasta aquí y me pongo con los días si sí.
+  }
 }
