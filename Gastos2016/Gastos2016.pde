@@ -140,8 +140,8 @@ void draw() {
       for (int n = 0; n < numGastos; n++) {
         stroke(110);
         fill(150, 0, 150, 70);
-        if (30 <= mouseX && mouseX <= 570 && 50+40*n + scrllBarAC <= mouseY && mouseY <= 80+40*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
-          rect(30, 50+40*n, 540, 30);
+        if (30 <= mouseX && mouseX <= 570 && 50+35*n + scrllBarAC <= mouseY && mouseY <= 80+35*n + scrllBarAC && 40 < mouseY && mouseY < 195) {
+          rect(30, 50+35*n, 540, 30);
           menE[1+n] = true;
         } else {
           menE[1+n] = false;
@@ -149,18 +149,40 @@ void draw() {
         noStroke();
         fill(250);
         textFont(font1,19);
-        text(GastosOBdD[n][0], 40, 72+40*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
+        text(GastosOBdD[n][3], 40, 72+35*n);    // If textWidth(concBdD[]) >= 180, cambio concBdD para ponerle puntos suspensivos.
+        text(GastosOBdD[n][2] + "/" + GastosOBdD[n][1] + "/" + GastosOBdD[n][0], 245, 72+35*n);
+        text(GastosOBdD[n][4] + " €", 370, 72+35*n);
+        text("IVA: " + GastosOBdD[n][6], 480, 72+35*n);
       }
     }
-    
-    
-    
     popMatrix();
     //
+    noStroke();
+    fill(0);
+    rect(0, 0, width, 45);
+    rect(0, 210, width, height-210);
+    rect(0, 0, 25, height);
+    rect(width-25, 0, 25, height);
+    stroke(110);
+    line(25, 44, width-25, 44);
+    line(25, 211, width-25, 211);
     noStroke();
     fill(250);
     textFont(font1,21);
     text("Vista de gastos: por fecha",105,30);
+    stroke(110);
+    fill(0);
+    if (440 <= mouseX && mouseX <= 560 && 217 <= mouseY && mouseY <= 242) {
+      fill(150, 0, 150, 70);
+      menE[0] = true;
+    } else {
+      menE[0] = false; 
+    }
+    rect(440, 217, 120, 25);
+    noStroke();
+    fill(250);
+    textFont(font1,17);
+    text("Volver", 473, 236);
     
   } else if (menInd == 2 || menInd == 20 || menInd == 21 || menInd == 22 || menInd == 23 || menInd == 24 || menInd == 25  || menInd == 50 || menInd == 60 || menInd == 61) {
     stroke(110);
@@ -781,6 +803,13 @@ void mouseClicked() {
       menInd = 0;
       menE[8] = false;
     }
+  } else if (menInd == 10) {  // Menú de ver gastos ordenados por fecha.
+    if (menE[0]) {  // Volver.
+      menInd = 0;
+      menE[0] = false;
+    }
+    // for n = 0; n < numGastos... selecciono GastosOBdD[1+n] (mirar mejor) y abro menú pra solo dar la opción de borrar.
+    // ScrollBar.
   } else if (menInd == 20 || menInd == 50 || menInd == 60 || menInd == 61) {
     if (menE[0]) { // Volver al menú de añadir gasto.
       menInd = 2;
@@ -1252,7 +1281,6 @@ class Gasto {
            DatosBdD1[0] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
            saveStrings("BdD.txt", DatosBdD1);
          } else {
-           print("paso por el Else");
            String DatosBdD1[] = new String[DatosBdD.length+1];
            for (int i = 0; i < DatosBdD.length; i++) DatosBdD1[i] = DatosBdD[i];
            DatosBdD1[DatosBdD.length] = tfY + "_" + tfM + "_" + tfD + "_" + tconc + "_" + tbase + "_" + tsConc + "_" + iv + "_" + tCap + "_" + ID;
@@ -1420,12 +1448,16 @@ void ordenoPorIntervalos(String[][] DatosT, int ind) {  // Ordeno la matriz de e
     int cm = 0;
     for (int m = 1; m < 13; m++) {
       for (int i = 0; i < n; i++) {
-        if (str(m).equals(Datos[i][ind])) nm++;
+        String m0 = str(m);
+        if (str(m).length() == 1) m0 = "0" + str(m);
+        if (m0.equals(Datos[i][ind])) nm++;
       }
       int ni = 0;
       for (int j = 0; j < nm; j++) {
         for(int i = ni; i < n; i++) {
-          if (str(m).equals(Datos[i][ind])) {
+          String m0 = str(m);
+          if (str(m).length() == 1) m0 = "0" + str(m);
+          if (m0.equals(Datos[i][ind])) {
              for (int k = 0; k < 9; k++) GastosOBdD[j+cm][k] = Datos[i][k];
              ni = i+1;
              i = n;
