@@ -26,6 +26,10 @@ char letter;
 char[] ch1;
 
 /*
+  - Estoy con la ScrollBar en menInd = 10. En Sevilla empecé a apuntar en un cuaderno todas las cosas que debo poner en una ScrollBar para concretar la clase, así que me parece que lo mejor que hago es esperar
+  a tener ese cuaderno a mano y seguir programando entonces.
+  
+  
   - He terminado el menú de ver gastos.
     - Estoy con el algoritmo para ordenar gastos por mes.
     - menInd = 10: Etiqueta de "Viendo gastos", botón de volver abajo, y scrollbar mostrando todos los datos y dándolos a elegir para dar la opción de borrar.
